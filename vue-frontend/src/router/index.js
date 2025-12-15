@@ -18,6 +18,11 @@ import CustomerTypeIndex from '../views/admin/customer_types/CustomerTypeIndex.v
 import CustomerTypeCreate from '../views/admin/customer_types/CustomerTypeCreate.vue'
 import CustomerTypeEdit from '../views/admin/customer_types/CustomerTypeEdit.vue'
 
+// packages
+import PackageIndex from '../views/admin/packages/PackageIndex.vue'
+import PackageCreate from '../views/admin/packages/PackageCreate.vue'
+import PackageEdit from '../views/admin/packages/PackageEdit.vue'
+
 // 🎯 ডামি পেজ তৈরি করা হলো, যেন রুট নেমগুলো কাজ করে
 const DummyPage = {
   template: '<div class="p-4"><h1>{{ $route.name }} - Content coming soon!</h1></div>',
@@ -57,6 +62,10 @@ const routes = [
 
       // Packages
       { path: 'packages', name: 'packages.index', component: DummyPage },
+
+      { path: 'packages', name: 'packages.index', component: PackageIndex }, 
+            { path: 'packages/create', name: 'packages.create', component: PackageCreate }, 
+            { path: 'packages/:id/edit', name: 'packages.edit', component: PackageEdit },
 
       // Location
       { path: 'areas', name: 'areas.index', component: DummyPage },
