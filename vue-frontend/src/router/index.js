@@ -13,6 +13,11 @@ import UserIndex from '../views/admin/users/UserIndex.vue'
 import UserCreate from '../views/admin/users/UserCreate.vue'
 import UserEdit from '../views/admin/users/UserEdit.vue'
 
+// customer_types
+import CustomerTypeIndex from '../views/admin/customer_types/CustomerTypeIndex.vue'
+import CustomerTypeCreate from '../views/admin/customer_types/CustomerTypeCreate.vue'
+import CustomerTypeEdit from '../views/admin/customer_types/CustomerTypeEdit.vue'
+
 // 🎯 ডামি পেজ তৈরি করা হলো, যেন রুট নেমগুলো কাজ করে
 const DummyPage = {
   template: '<div class="p-4"><h1>{{ $route.name }} - Content coming soon!</h1></div>',
@@ -45,6 +50,10 @@ const routes = [
 
       // Customer Types
       { path: 'customer_types', name: 'customer_types.index', component: DummyPage },
+
+      { path: 'customer_types', name: 'customer_types.index', component: CustomerTypeIndex }, 
+            { path: 'customer_types/create', name: 'customer_types.create', component: CustomerTypeCreate }, 
+            { path: 'customer_types/:id/edit', name: 'customer_types.edit', component: CustomerTypeEdit },
 
       // Packages
       { path: 'packages', name: 'packages.index', component: DummyPage },
