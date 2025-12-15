@@ -1,15 +1,11 @@
 <template>
     <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
         <div class="app-brand demo">
-            
-            <router-link to="/" class="app-brand-link"> 
+
+            <router-link to="/" class="app-brand-link">
                 <span class="app-brand-logo demo">
-                    <img 
-                        src="/admin-src/assets/img/logo/my_logo.png" 
-                        alt="My Company Logo" 
-                        class="w-auto h-auto" 
-                        style="height: 25px;"
-                    />
+                    <img src="/admin-src/assets/img/logo/my_logo.png" alt="My Company Logo" class="w-auto h-auto"
+                        style="height: 25px;" />
                 </span>
                 <span class="app-brand-text demo menu-text fw-bold ms-2">SwiftNet</span>
             </router-link>
@@ -24,7 +20,7 @@
         <div class="menu-inner-shadow"></div>
 
         <ul class="menu-inner py-1">
-            <li class="menu-item"> 
+            <li class="menu-item">
                 <router-link to="/dashboard" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-home-smile"></i>
                     <div class="text-truncate" data-i18n="Dashboards">Dashboards</div>
@@ -34,17 +30,17 @@
             <li class="menu-item">
                 <router-link :to="{ name: 'users.index' }" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-user"></i>
-                    <div class="text-truncate" data-i18n="Layouts">Users</div>
+                    <div data-i18n="User Management">User Management</div>
                 </router-link>
             </li>
 
             <li class="menu-item">
                 <router-link :to="{ name: 'customer_types.index' }" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-user-pin"></i> 
-                    <div class="text-truncate" data-i18n="Customer Types">Customer Types</div>
+                    <i class="menu-icon tf-icons bx bx-group"></i>
+                    <div data-i18n="Customer Types">Customer Types</div>
                 </router-link>
             </li>
-            
+
             <li class="menu-item">
                 <router-link :to="{ name: 'packages.index' }" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-list-ul"></i>
@@ -55,56 +51,59 @@
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Location</span></li>
             <li class="menu-item">
                 <router-link :to="{ name: 'areas.index' }" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-bullseye"></i> <div class="text-truncate" data-i18n="Areas">Areas</div>
+                    <i class="menu-icon tf-icons bx bx-bullseye"></i>
+                    <div class="text-truncate" data-i18n="Areas">Areas</div>
                 </router-link>
             </li>
 
             <li class="menu-item">
                 <router-link :to="{ name: 'distribution_boxes.index' }" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-box"></i> <div class="text-truncate" data-i18n="Distribution Box">Distribution Box</div>
+                    <i class="menu-icon tf-icons bx bx-box"></i>
+                    <div class="text-truncate" data-i18n="Distribution Box">Distribution Box</div>
                 </router-link>
             </li>
 
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Connections</span></li>
             <li class="menu-item">
                 <router-link :to="{ name: 'customers.index' }" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-user-plus"></i> 
+                    <i class="menu-icon tf-icons bx bx-user-plus"></i>
                     <div class="text-truncate" data-i18n="Customers">Customers</div>
                 </router-link>
             </li>
 
             <li class="menu-item">
                 <router-link :to="{ name: 'connections.index' }" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-globe"></i> 
+                    <i class="menu-icon tf-icons bx bx-globe"></i>
                     <div class="text-truncate" data-i18n="Connections">Connections</div>
                 </router-link>
             </li>
 
-            <li class="menu-header small text-uppercase"><span class="menu-header-text">Billing &amp; Payments</span></li>
+            <li class="menu-header small text-uppercase"><span class="menu-header-text">Billing &amp; Payments</span>
+            </li>
             <li class="menu-item">
                 <router-link :to="{ name: 'billings.index' }" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-credit-card"></i> 
+                    <i class="menu-icon tf-icons bx bx-credit-card"></i>
                     <div class="text-truncate" data-i18n="Billings">Billings</div>
                 </router-link>
             </li>
 
             <li class="menu-item">
                 <router-link :to="{ name: 'payments.index' }" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-wallet"></i> 
+                    <i class="menu-icon tf-icons bx bx-wallet"></i>
                     <div class="text-truncate" data-i18n="Payments">Payments</div>
                 </router-link>
             </li>
 
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Services</span></li>
             <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link"> 
+                <a href="javascript:void(0);" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-help-circle"></i>
                     <div class="text-truncate" data-i18n="Layouts">Support Tickets</div>
                 </a>
             </li>
 
             <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link"> 
+                <a href="javascript:void(0);" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-envelope-open"></i>
                     <div class="text-truncate" data-i18n="Layouts">Contact Messages</div>
                 </a>
