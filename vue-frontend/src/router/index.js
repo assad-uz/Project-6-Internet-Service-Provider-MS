@@ -23,6 +23,11 @@ import PackageIndex from '../views/admin/packages/PackageIndex.vue'
 import PackageCreate from '../views/admin/packages/PackageCreate.vue'
 import PackageEdit from '../views/admin/packages/PackageEdit.vue'
 
+// areas
+import AreaIndex from '../views/admin/areas/AreaIndex.vue'
+import AreaCreate from '../views/admin/areas/AreaCreate.vue'
+import AreaEdit from '../views/admin/areas/AreaEdit.vue'
+
 // 🎯 ডামি পেজ তৈরি করা হলো, যেন রুট নেমগুলো কাজ করে
 const DummyPage = {
   template: '<div class="p-4"><h1>{{ $route.name }} - Content coming soon!</h1></div>',
@@ -56,16 +61,25 @@ const routes = [
       // Customer Types
       { path: 'customer_types', name: 'customer_types.index', component: DummyPage },
 
-      { path: 'customer_types', name: 'customer_types.index', component: CustomerTypeIndex }, 
-            { path: 'customer_types/create', name: 'customer_types.create', component: CustomerTypeCreate }, 
-            { path: 'customer_types/:id/edit', name: 'customer_types.edit', component: CustomerTypeEdit },
+      { path: 'customer_types', name: 'customer_types.index', component: CustomerTypeIndex },
+      {
+        path: 'customer_types/create',
+        name: 'customer_types.create',
+        component: CustomerTypeCreate,
+      },
+      { path: 'customer_types/:id/edit', name: 'customer_types.edit', component: CustomerTypeEdit },
 
       // Packages
       { path: 'packages', name: 'packages.index', component: DummyPage },
 
-      { path: 'packages', name: 'packages.index', component: PackageIndex }, 
-            { path: 'packages/create', name: 'packages.create', component: PackageCreate }, 
-            { path: 'packages/:id/edit', name: 'packages.edit', component: PackageEdit },
+      { path: 'packages', name: 'packages.index', component: PackageIndex },
+      { path: 'packages/create', name: 'packages.create', component: PackageCreate },
+      { path: 'packages/:id/edit', name: 'packages.edit', component: PackageEdit },
+
+      // Areas
+      { path: 'areas', name: 'areas.index', component: AreaIndex },
+      { path: 'areas/create', name: 'areas.create', component: AreaCreate },
+      { path: 'areas/:id/edit', name: 'areas.edit', component: AreaEdit },
 
       // Location
       { path: 'areas', name: 'areas.index', component: DummyPage },
