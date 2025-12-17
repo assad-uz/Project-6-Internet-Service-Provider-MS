@@ -39,6 +39,11 @@ import ConnectionIndex from '../views/admin/connections/ConnectionIndex.vue'
 import ConnectionCreate from '../views/admin/connections/ConnectionCreate.vue'
 import ConnectionEdit from '../views/admin/connections/ConnectionEdit.vue'
 
+// Billing ইম্পোর্টস
+import BillingIndex from '../views/admin/billings/BillingIndex.vue'
+import BillingCreate from '../views/admin/billings/BillingCreate.vue' // নতুন বিল জেনারেট করতে
+import BillingInvoice from '../views/admin/billings/BillingInvoice.vue'
+
 // 💡 রানটাইম এরর এড়াতে DummyPage কে একটি ফাংশনাল কম্পোনেন্ট হিসেবে তৈরি করা হলো (template ছাড়া)
 // const DummyPage = {
 //     render() {
@@ -50,62 +55,73 @@ import ConnectionEdit from '../views/admin/connections/ConnectionEdit.vue'
 // দ্রষ্টব্য: উপরের render ফাংশন ঝামেলা মনে হলে নিচের রুটগুলোতে সরাসরি component: DashboardPage দিয়ে রাখতে পারেন সাময়িকভাবে।
 
 const routes = [
-    {
-        path: '/',
-        component: AdminLayout,
-        children: [
-            // Dashboard
-            { path: '', name: 'Dashboard', component: DashboardPage },
-            { path: 'dashboard', name: 'dashboard', component: DashboardPage },
+  {
+    path: '/',
+    component: AdminLayout,
+    children: [
+      // Dashboard
+      { path: '', name: 'Dashboard', component: DashboardPage },
+      { path: 'dashboard', name: 'dashboard', component: DashboardPage },
 
-            // Users
-            { path: 'users', name: 'users.index', component: UserIndex },
-            { path: 'users/create', name: 'users.create', component: UserCreate },
-            { path: 'users/:id/edit', name: 'users.edit', component: UserEdit },
+      // Users
+      { path: 'users', name: 'users.index', component: UserIndex },
+      { path: 'users/create', name: 'users.create', component: UserCreate },
+      { path: 'users/:id/edit', name: 'users.edit', component: UserEdit },
 
-            // Customer Types
-            { path: 'customer_types', name: 'customer_types.index', component: CustomerTypeIndex },
-            { path: 'customer_types/create', name: 'customer_types.create', component: CustomerTypeCreate },
-            { path: 'customer_types/:id/edit', name: 'customer_types.edit', component: CustomerTypeEdit },
+      // Customer Types
+      { path: 'customer_types', name: 'customer_types.index', component: CustomerTypeIndex },
+      {
+        path: 'customer_types/create',
+        name: 'customer_types.create',
+        component: CustomerTypeCreate,
+      },
+      { path: 'customer_types/:id/edit', name: 'customer_types.edit', component: CustomerTypeEdit },
 
-            // Packages
-            { path: 'packages', name: 'packages.index', component: PackageIndex },
-            { path: 'packages/create', name: 'packages.create', component: PackageCreate },
-            { path: 'packages/:id/edit', name: 'packages.edit', component: PackageEdit },
+      // Packages
+      { path: 'packages', name: 'packages.index', component: PackageIndex },
+      { path: 'packages/create', name: 'packages.create', component: PackageCreate },
+      { path: 'packages/:id/edit', name: 'packages.edit', component: PackageEdit },
 
-            // Areas
-            { path: 'areas', name: 'areas.index', component: AreaIndex },
-            { path: 'areas/create', name: 'areas.create', component: AreaCreate },
-            { path: 'areas/:id/edit', name: 'areas.edit', component: AreaEdit },
+      // Areas
+      { path: 'areas', name: 'areas.index', component: AreaIndex },
+      { path: 'areas/create', name: 'areas.create', component: AreaCreate },
+      { path: 'areas/:id/edit', name: 'areas.edit', component: AreaEdit },
 
-            // Distribution Boxes
-            { path: 'distribution_boxes', name: 'distribution_boxes.index', component: BoxIndex }, 
-{ path: 'distribution_boxes/create', name: 'distribution_boxes.create', component: BoxCreate }, 
-{ path: 'distribution_boxes/:id/edit', name: 'distribution_boxes.edit', component: BoxEdit },
+      // Distribution Boxes
+      { path: 'distribution_boxes', name: 'distribution_boxes.index', component: BoxIndex },
+      {
+        path: 'distribution_boxes/create',
+        name: 'distribution_boxes.create',
+        component: BoxCreate,
+      },
+      { path: 'distribution_boxes/:id/edit', name: 'distribution_boxes.edit', component: BoxEdit },
 
-            // Customers
-            { path: 'customers', name: 'customers.index', component: CustomerIndex },
-            { path: 'customers/create', name: 'customers.create', component: CustomerCreate },
-            { path: 'customers/:id/edit', name: 'customers.edit', component: CustomerEdit },
+      // Customers
+      { path: 'customers', name: 'customers.index', component: CustomerIndex },
+      { path: 'customers/create', name: 'customers.create', component: CustomerCreate },
+      { path: 'customers/:id/edit', name: 'customers.edit', component: CustomerEdit },
 
-            // Connections
-            { path: 'connections', name: 'connections.index', component: ConnectionIndex },
-{ path: 'connections/create', name: 'connections.create', component: ConnectionCreate },
-{ path: 'connections/:id/edit', name: 'connections.edit', component: ConnectionEdit },
+      // Connections
+      { path: 'connections', name: 'connections.index', component: ConnectionIndex },
+      { path: 'connections/create', name: 'connections.create', component: ConnectionCreate },
+      { path: 'connections/:id/edit', name: 'connections.edit', component: ConnectionEdit },
 
+      // Billings
+      { path: 'billings', name: 'billings.index', component: BillingIndex },
+{ path: 'billings/create', name: 'billings.create', component: BillingCreate },
+{ path: 'billings/:id/invoice', name: 'billings.invoice', component: BillingInvoice },
 
-            // বাকি রুটগুলো (যেগুলো এখনও তৈরি হয়নি, সেগুলোতে DashboardPage দিয়ে রাখছি এরর এড়াতে)
-            { path: 'billings', name: 'billings.index', component: DashboardPage },
-            { path: 'payments', name: 'payments.index', component: DashboardPage },
-            { path: 'admin/newsletters', name: 'admin.newsletters.index', component: DashboardPage },
-            { path: 'reports', name: 'reports', component: DashboardPage },
-        ],
-    },
+      // বাকি রুটগুলো (যেগুলো এখনও তৈরি হয়নি, সেগুলোতে DashboardPage দিয়ে রাখছি এরর এড়াতে)
+      { path: 'payments', name: 'payments.index', component: DashboardPage },
+      { path: 'admin/newsletters', name: 'admin.newsletters.index', component: DashboardPage },
+      { path: 'reports', name: 'reports', component: DashboardPage },
+    ],
+  },
 ]
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
-    routes: routes,
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: routes,
 })
 
 export default router
