@@ -87,10 +87,10 @@
                 </router-link>
             </li>
 
-            <li class="menu-item">
+            <li class="menu-item" :class="{ active: $route.name.includes('payments') }">
                 <router-link :to="{ name: 'payments.index' }" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-wallet"></i>
-                    <div class="text-truncate" data-i18n="Payments">Payments</div>
+                    <i class="menu-icon tf-icons bx bx-credit-card-front"></i>
+                    <div data-i18n="Payments">Payments History</div>
                 </router-link>
             </li>
 

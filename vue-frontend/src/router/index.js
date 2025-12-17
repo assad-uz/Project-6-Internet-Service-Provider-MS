@@ -45,6 +45,11 @@ import BillingCreate from '../views/admin/billings/BillingCreate.vue'
 import BillingEdit from '../views/admin/billings/BillingEdit.vue'
 import BillingInvoice from '../views/admin/billings/BillingInvoice.vue'
 
+// Payment ইম্পোর্টস
+import PaymentIndex from '../views/admin/payments/PaymentIndex.vue'
+import PaymentCreate from '../views/admin/payments/PaymentCreate.vue'
+import PaymentEdit from '../views/admin/payments/PaymentEdit.vue'
+
 // 💡 রানটাইম এরর এড়াতে DummyPage কে একটি ফাংশনাল কম্পোনেন্ট হিসেবে তৈরি করা হলো (template ছাড়া)
 // const DummyPage = {
 //     render() {
@@ -109,12 +114,16 @@ const routes = [
 
       // Billings
       { path: 'billings', name: 'billings.index', component: BillingIndex },
-{ path: 'billings/create', name: 'billings.create', component: BillingCreate },
-{ path: 'billings/:id/edit', name: 'billings.edit', component: BillingEdit },
-{ path: 'billings/:id/invoice', name: 'billings.invoice', component: BillingInvoice },
+      { path: 'billings/create', name: 'billings.create', component: BillingCreate },
+      { path: 'billings/:id/edit', name: 'billings.edit', component: BillingEdit },
+      { path: 'billings/:id/invoice', name: 'billings.invoice', component: BillingInvoice },
+
+      // Payment
+      { path: 'payments', name: 'payments.index', component: PaymentIndex },
+      { path: 'payments/create/:billId?', name: 'payments.create', component: PaymentCreate, props: true },
+      { path: 'payments/:id/edit', name: 'payments.edit', component: PaymentEdit, props: true },
 
       // বাকি রুটগুলো (যেগুলো এখনও তৈরি হয়নি, সেগুলোতে DashboardPage দিয়ে রাখছি এরর এড়াতে)
-      { path: 'payments', name: 'payments.index', component: DashboardPage },
       { path: 'admin/newsletters', name: 'admin.newsletters.index', component: DashboardPage },
       { path: 'reports', name: 'reports', component: DashboardPage },
     ],
