@@ -29,6 +29,11 @@ import BoxIndex from '../views/admin/distribution_boxes/BoxIndex.vue'
 import BoxCreate from '../views/admin/distribution_boxes/BoxCreate.vue'
 import BoxEdit from '../views/admin/distribution_boxes/BoxEdit.vue'
 
+// customers
+import CustomerIndex from '../views/admin/customers/CustomerIndex.vue'
+import CustomerCreate from '../views/admin/customers/CustomerCreate.vue'
+import CustomerEdit from '../views/admin/customers/CustomerEdit.vue'
+
 
 // 💡 রানটাইম এরর এড়াতে DummyPage কে একটি ফাংশনাল কম্পোনেন্ট হিসেবে তৈরি করা হলো (template ছাড়া)
 // const DummyPage = {
@@ -74,9 +79,12 @@ const routes = [
 { path: 'distribution_boxes/create', name: 'distribution_boxes.create', component: BoxCreate }, 
 { path: 'distribution_boxes/:id/edit', name: 'distribution_boxes.edit', component: BoxEdit },
 
+            // Customers
+            { path: 'customers', name: 'customers.index', component: CustomerIndex },
+            { path: 'customers/create', name: 'customers.create', component: CustomerCreate },
+            { path: 'customers/:id/edit', name: 'customers.edit', component: CustomerEdit },
 
             // বাকি রুটগুলো (যেগুলো এখনও তৈরি হয়নি, সেগুলোতে DashboardPage দিয়ে রাখছি এরর এড়াতে)
-            { path: 'customers', name: 'customers.index', component: DashboardPage },
             { path: 'connections', name: 'connections.index', component: DashboardPage },
             { path: 'billings', name: 'billings.index', component: DashboardPage },
             { path: 'payments', name: 'payments.index', component: DashboardPage },

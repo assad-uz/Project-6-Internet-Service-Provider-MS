@@ -64,12 +64,12 @@
             </li>
 
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Connections</span></li>
-            <li class="menu-item">
-                <router-link :to="{ name: 'customers.index' }" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-user-plus"></i>
-                    <div class="text-truncate" data-i18n="Customers">Customers</div>
-                </router-link>
-            </li>
+            <li class="menu-item" :class="{ active: $route.name.includes('customers') }">
+    <router-link :to="{ name: 'customers.index' }" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-group"></i>
+        <div data-i18n="Customers">Customers</div>
+    </router-link>
+</li>
 
             <li class="menu-item">
                 <router-link :to="{ name: 'connections.index' }" class="menu-link">
