@@ -34,6 +34,10 @@ import CustomerIndex from '../views/admin/customers/CustomerIndex.vue'
 import CustomerCreate from '../views/admin/customers/CustomerCreate.vue'
 import CustomerEdit from '../views/admin/customers/CustomerEdit.vue'
 
+// connections
+import ConnectionIndex from '../views/admin/connections/ConnectionIndex.vue'
+import ConnectionCreate from '../views/admin/connections/ConnectionCreate.vue'
+import ConnectionEdit from '../views/admin/connections/ConnectionEdit.vue'
 
 // 💡 রানটাইম এরর এড়াতে DummyPage কে একটি ফাংশনাল কম্পোনেন্ট হিসেবে তৈরি করা হলো (template ছাড়া)
 // const DummyPage = {
@@ -84,8 +88,13 @@ const routes = [
             { path: 'customers/create', name: 'customers.create', component: CustomerCreate },
             { path: 'customers/:id/edit', name: 'customers.edit', component: CustomerEdit },
 
+            // Connections
+            { path: 'connections', name: 'connections.index', component: ConnectionIndex },
+{ path: 'connections/create', name: 'connections.create', component: ConnectionCreate },
+{ path: 'connections/:id/edit', name: 'connections.edit', component: ConnectionEdit },
+
+
             // বাকি রুটগুলো (যেগুলো এখনও তৈরি হয়নি, সেগুলোতে DashboardPage দিয়ে রাখছি এরর এড়াতে)
-            { path: 'connections', name: 'connections.index', component: DashboardPage },
             { path: 'billings', name: 'billings.index', component: DashboardPage },
             { path: 'payments', name: 'payments.index', component: DashboardPage },
             { path: 'admin/newsletters', name: 'admin.newsletters.index', component: DashboardPage },

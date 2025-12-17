@@ -71,12 +71,12 @@
     </router-link>
 </li>
 
-            <li class="menu-item">
-                <router-link :to="{ name: 'connections.index' }" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-globe"></i>
-                    <div class="text-truncate" data-i18n="Connections">Connections</div>
-                </router-link>
-            </li>
+            <li class="menu-item" :class="{ active: $route.name.includes('connections') }">
+    <router-link :to="{ name: 'connections.index' }" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-link-alt"></i>
+        <div>Connections</div>
+    </router-link>
+</li>
 
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Billing &amp; Payments</span>
             </li>
