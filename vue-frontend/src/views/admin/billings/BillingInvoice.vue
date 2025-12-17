@@ -13,7 +13,7 @@
       <div class="invoice-header row align-items-center">
         <div class="col-6">
           <div class="d-flex align-items-center mb-2">
-            <img src="/logo.png" alt="SwiftNet Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+            <img src="/admin-src/assets/img/logo/my_logo.png" alt="SwiftNet Logo" style="width: 50px; height: 50px; margin-right: 10px;">
             <h2 class="mb-0 fw-bold">SwiftNet</h2>
           </div>
           <p class="mb-0">Dhanmondi Road 4</p>

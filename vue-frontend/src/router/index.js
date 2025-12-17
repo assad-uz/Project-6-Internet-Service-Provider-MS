@@ -41,7 +41,8 @@ import ConnectionEdit from '../views/admin/connections/ConnectionEdit.vue'
 
 // Billing ইম্পোর্টস
 import BillingIndex from '../views/admin/billings/BillingIndex.vue'
-import BillingCreate from '../views/admin/billings/BillingCreate.vue' // নতুন বিল জেনারেট করতে
+import BillingCreate from '../views/admin/billings/BillingCreate.vue'
+import BillingEdit from '../views/admin/billings/BillingEdit.vue'
 import BillingInvoice from '../views/admin/billings/BillingInvoice.vue'
 
 // 💡 রানটাইম এরর এড়াতে DummyPage কে একটি ফাংশনাল কম্পোনেন্ট হিসেবে তৈরি করা হলো (template ছাড়া)
@@ -109,6 +110,7 @@ const routes = [
       // Billings
       { path: 'billings', name: 'billings.index', component: BillingIndex },
 { path: 'billings/create', name: 'billings.create', component: BillingCreate },
+{ path: 'billings/:id/edit', name: 'billings.edit', component: BillingEdit },
 { path: 'billings/:id/invoice', name: 'billings.invoice', component: BillingInvoice },
 
       // বাকি রুটগুলো (যেগুলো এখনও তৈরি হয়নি, সেগুলোতে DashboardPage দিয়ে রাখছি এরর এড়াতে)
