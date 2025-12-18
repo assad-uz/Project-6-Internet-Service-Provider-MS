@@ -48,9 +48,10 @@
                 </router-link>
                 
                 <router-link :to="{ name: 'billings.edit', params: { id: bill.id } }" 
-                             class="btn btn-warning btn-sm me-1">Edit</router-link>
+                             class="btn btn-warning btn-icon btn-sm"><i class="bx bx-edit text-white"></i></router-link>
                 
-                <button @click="deleteBill(bill.id)" class="btn btn-danger btn-sm">Delete</button>
+                <button @click="deleteBill(bill.id)" class="btn btn-danger btn-icon btn-sm ms-1">
+                                    <i class="bx bx-trash text-white"></i></button>
               </td>
             </tr>
 

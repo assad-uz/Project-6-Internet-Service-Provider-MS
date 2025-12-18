@@ -34,7 +34,7 @@
                             <td>{{ connection.username }}</td>
                             <td>{{ connection.package?.package_name || 'N/A' }}</td>
                             <td>
-                                {{ connection.distribution_box?.box_code || 'N/A' }} / 
+                                {{ connection.distribution_box?.box_code || 'N/A' }} /
                                 {{ connection.box_port_number || 'N/A' }}
                             </td>
                             <td>
@@ -47,10 +47,12 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <router-link :to="{ name: 'connections.edit', params: { id: connection.id } }" 
-                                             class="btn btn-warning btn-sm">Edit</router-link>
-                                <button @click="deleteConnection(connection.id)" class="btn btn-danger btn-sm ms-1">
-                                    Delete
+                                <router-link :to="{ name: 'connections.edit', params: { id: connection.id } }"
+                                    class="btn btn-warning btn-icon btn-sm"><i
+                                        class="bx bx-edit text-white"></i></router-link>
+                                <button @click="deleteConnection(connection.id)"
+                                    class="btn btn-danger btn-icon btn-sm ms-1">
+                                    <i class="bx bx-trash text-white"></i>
                                 </button>
                             </td>
                         </tr>

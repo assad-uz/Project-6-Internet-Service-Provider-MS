@@ -35,10 +35,10 @@
                             <td class="text-end">৳ {{ formatPrice(packageItem.price) }}</td> 
 
                             <td class="text-center">
-                                <router-link :to="{ name: 'packages.edit', params: { id: packageItem.id } }" class="btn btn-warning btn-sm">Edit</router-link>
+                                <router-link :to="{ name: 'packages.edit', params: { id: packageItem.id } }" class="btn btn-warning btn-icon btn-sm"><i class="bx bx-edit text-white"></i></router-link>
 
-                                <button @click="deletePackage(packageItem.id)" class="btn btn-danger btn-sm ms-1">
-                                    Delete
+                                <button @click="deletePackage(packageItem.id)" class="btn btn-danger btn-icon btn-sm ms-1">
+                                    <i class="bx bx-trash text-white"></i>
                                 </button>
                             </td>
                         </tr>

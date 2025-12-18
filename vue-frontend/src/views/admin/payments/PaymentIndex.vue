@@ -44,13 +44,12 @@
                 <i class="bx bx-user-circle"></i> {{ payment.collector?.name || 'N/A' }}
               </td>
               <td class="text-center">
-                <router-link :to="{ name: 'payments.edit', params: { id: payment.id } }" 
-                             class="btn btn-warning btn-sm me-1">
-                  <i class="bx bx-edit"></i> Edit
+                <router-link :to="{ name: 'payments.edit', params: { id: payment.id } }"
+                  class="btn btn-warning btn-icon btn-sm"><i class="bx bx-edit text-white"></i>
                 </router-link>
-                
-                <button @click="confirmDelete(payment.id)" class="btn btn-danger btn-sm">
-                  <i class="bx bx-trash"></i> Delete
+
+                <button @click="confirmDelete(payment.id)" class="btn btn-danger btn-icon btn-sm ms-1">
+                  <i class="bx bx-trash text-white"></i>
                 </button>
               </td>
             </tr>
@@ -130,6 +129,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.table th { font-size: 0.85rem; }
-.badge { font-weight: 500; }
+.table th {
+  font-size: 0.85rem;
+}
+
+.badge {
+  font-weight: 500;
+}
 </style>
