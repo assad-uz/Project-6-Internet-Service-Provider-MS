@@ -20,28 +20,28 @@
         <div class="menu-inner-shadow"></div>
 
         <ul class="menu-inner py-1">
-            <li class="menu-item">
+            <li class="menu-item" :class="{ active: $route.name.includes('dashboard') }">
                 <router-link to="/dashboard" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-home-smile"></i>
                     <div class="text-truncate" data-i18n="Dashboards">Dashboards</div>
                 </router-link>
             </li>
 
-            <li class="menu-item">
+            <li class="menu-item" :class="{ active: $route.name.includes('users') }">
                 <router-link :to="{ name: 'users.index' }" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-user"></i>
                     <div data-i18n="User Management">User Management</div>
                 </router-link>
             </li>
 
-            <li class="menu-item">
+            <li class="menu-item" :class="{ active: $route.name.includes('customer_types') }">
                 <router-link :to="{ name: 'customer_types.index' }" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-group"></i>
                     <div data-i18n="Customer Types">Customer Types</div>
                 </router-link>
             </li>
 
-            <li class="menu-item">
+            <li class="menu-item" :class="{ active: $route.name.includes('packages') }">
                 <router-link :to="{ name: 'packages.index' }" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-list-ul"></i>
                     <div class="text-truncate" data-i18n="Layouts">Packages</div>
@@ -49,14 +49,14 @@
             </li>
 
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Location</span></li>
-            <li class="menu-item">
+            <li class="menu-item" :class="{ active: $route.name.includes('areas') }">
                 <router-link :to="{ name: 'areas.index' }" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-map"></i>
                     <div>Areas</div>
                 </router-link>
             </li>
 
-            <li class="menu-item">
+            <li class="menu-item" :class="{ active: $route.name.includes('distribution_boxes') }">
                 <router-link :to="{ name: 'distribution_boxes.index' }" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-box"></i>
                     <div class="text-truncate" data-i18n="Distribution Box">Distribution Box</div>
