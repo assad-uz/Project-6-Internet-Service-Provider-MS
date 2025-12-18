@@ -26,10 +26,22 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue';
 // Composition API-তে অন্যান্য কম্পোনেন্ট ইম্পোর্ট
 import TheSidebar from './layouts/TheSidebar.vue';
 import TheHeader from './layouts/TheHeader.vue';
 import TheFooter from './layouts/TheFooter.vue';
+
+onMounted(() => {
+  // English: Re-initialize Sneat Menu if helpers.js is loaded in index.html
+  // এটি নিশ্চিত করে যে Vue কম্পোনেন্ট মাউন্ট হওয়ার পর টেমপ্লেটের JS বাটনগুলোকে চিনতে পারবে
+  if (window.Helpers) {
+    window.Helpers.init();
+    window.Helpers.setAutoUpdate(true);
+  }
+});
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>
