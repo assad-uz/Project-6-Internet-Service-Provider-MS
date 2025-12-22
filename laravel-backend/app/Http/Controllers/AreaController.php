@@ -7,60 +7,63 @@ use Illuminate\Http\Request;
 
 class AreaController extends Controller
 {
-    // 1. INDEX: সমস্ত এরিয়া দেখানোর জন্য
+    // 1. INDEX: সমস্ত এরিয়া JSON আকারে পাঠানোর জন্য
     public function index()
     {
+        // ডাটাবেস থেকে ডাটা আনা হচ্ছে
         $areas = Area::orderBy('id', 'desc')->paginate(10);
-        return view('pages.admin.areas.index', compact('areas'));
+        
+        // ভিউ এর বদলে JSON রিটার্ন করা হচ্ছে
+        return response()->json($areas, 200); 
     }
 
-    // 2. CREATE: নতুন ফর্ম দেখানোর জন্য
-    public function create()
-    {
-        return view('pages.admin.areas.create');
-    }
+    // API-তে CREATE এবং EDIT মেথড প্রয়োজন নেই
+    // কারণ ফর্মগুলো আপনার Vue প্রোজেক্টে থাকবে।
 
-    // 3. STORE: নতুন ডেটা সেভ করার জন্য
+    // 2. STORE: নতুন ডেটা সেভ করার জন্য
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100|unique:areas,name',
         ]);
 
-        Area::create($validated);
+        $area = Area::create($validated);
 
-        return redirect()->route('areas.index')
-            ->with('success', 'Area created successfully.');
+        // রিডাইরেক্ট না করে ডাটা এবং সাকসেস মেসেজ পাঠানো হচ্ছে
+        return response()->json([
+            'message' => 'Area created successfully.',
+            'data' => $area
+        ], 201); // 201 মানে নতুন কিছু তৈরি হয়েছে (Created)
     }
 
-    // 4. EDIT: এডিট ফর্ম দেখানোর জন্য
-    public function edit(Area $area)
+    // 3. SHOW: নির্দিষ্ট একটি এরিয়ার ডাটা দেখার জন্য (এটি Vue-তে লাগতে পারে)
+    public function show(Area $area)
     {
-        return view('pages.admin.areas.edit', compact('area'));
+        return response()->json($area, 200);
     }
 
-    // 5. UPDATE: ডেটা আপডেট করার জন্য
+    // 4. UPDATE: ডেটা আপডেট করার জন্য
     public function update(Request $request, Area $area)
     {
         $validated = $request->validate([
-            // বর্তমান row-টিকে বাদ দিয়ে uniqueness চেক করা হচ্ছে
             'name' => 'required|string|max:100|unique:areas,name,' . $area->id,
         ]);
 
         $area->update($validated);
 
-        return redirect()->route('areas.index')
-            ->with('success', 'Area updated successfully.');
+        return response()->json([
+            'message' => 'Area updated successfully.',
+            'data' => $area
+        ], 200);
     }
 
-    // 6. DESTROY: ডেটা ডিলিট করার জন্য
+    // 5. DESTROY: ডেটা ডিলিট করার জন্য
     public function destroy(Area $area)
     {
-        // 💡 যদি ভবিষ্যতে এরিয়ার সাথে অন্য কোনো টেবিলের সম্পর্ক থাকে (যেমন: কাস্টমার), 
-        // তবে ডিলিট করার আগে সেই সম্পর্কটি চেক করা উচিত। আপাতত সরাসরি ডিলিট করা হচ্ছে।
         $area->delete();
 
-        return redirect()->route('areas.index')
-            ->with('success', 'Area deleted successfully.');
+        return response()->json([
+            'message' => 'Area deleted successfully.'
+        ], 200);
     }
 }

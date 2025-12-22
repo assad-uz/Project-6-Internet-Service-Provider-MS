@@ -16,7 +16,6 @@ use App\Http\Controllers\DistributionBoxController;
 // Vue থেকে ড্যাশবোর্ডের ডাটা পাওয়ার জন্য
 Route::get('/dashboard', [DashboardController::class, 'index']);
 
-// API-এর জন্য resource রুট ব্যবহারের নিয়ম কিছুটা আলাদা
 // এখানে 'apiResource' ব্যবহার করা হয় কারণ API-তে 'create' এবং 'edit' (HTML Form) লাগে না।
 
 // Users
