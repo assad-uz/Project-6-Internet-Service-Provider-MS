@@ -27,7 +27,7 @@ class PackageController extends Controller
         $validatedData = $request->validate([
             'package_code' => 'required|string|max:10|unique:packages,package_code',
             'package_name' => 'required|string|max:100',
-            'speed'        => 'required|string|max:50',
+            'speed'        => 'required|numeric|max:100',
             'price'        => 'required|numeric|min:0',
         ]);
 
