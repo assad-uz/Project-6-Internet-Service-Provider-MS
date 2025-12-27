@@ -1,66 +1,120 @@
 <template>
-    <div class="container py-4">
+    <div class="container-fluid py-4 bg-light min-vh-100">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="fw-bold text-dark">Business Overview</h4>
+                <p class="text-muted">Welcome back! Here's what's happening today.</p>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 bg-primary bg-opacity-10 p-3 rounded-3">
+                                <i class="bx bx-group fs-2 text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="text-muted mb-1 small">Total Customers</h6>
+                                <h3 class="fw-bold mb-0">{{ stats.totalCustomers }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 bg-success bg-opacity-10 p-3 rounded-3">
+                                <i class="bx bx-user-check fs-2 text-success"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="text-muted mb-1 small">Active Users</h6>
+                                <h3 class="fw-bold text-success mb-0">{{ stats.activeCustomers }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 bg-warning bg-opacity-10 p-3 rounded-3">
+                                <i class="bx bx-support fs-2 text-warning"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="text-muted mb-1 small">Open Tickets</h6>
+                                <h3 class="fw-bold text-warning mb-0">{{ stats.pendingTickets }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+    <div class="card border-0 shadow-sm rounded-4 text-white" style="background: linear-gradient(45deg, #4e73df, #224abe);">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0 bg-white bg-opacity-20 p-3 rounded-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <i class="bx bx-wallet fs-2 text-white"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h6 class="text-white text-opacity-75 mb-1 small">Collection ({{ stats.currentMonthName || 'Monthly' }})</h6>
+                    <h3 class="fw-bold mb-0">৳ {{ totalSalesAmountFormatted }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+
         <div class="row g-3">
-            
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body text-center">
-                        <h6 class="text-muted">Total Customers</h6>
-                        <h3 class="fw-bold">{{ totalCustomers }}</h3>
+            <div class="col-12 col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h6 class="fw-bold mb-0">Package Distribution</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4 border-0">Package Name</th>
+                                        <th class="text-center border-0">Users</th>
+                                        <th class="border-0">Progress</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="packageStat in stats.packageCounts" :key="packageStat.package_id">
+                                        <td class="ps-4 fw-medium">{{ packageStat.package?.package_name || 'N/A' }}</td>
+                                        <td class="text-center"><span class="badge bg-info bg-opacity-10 text-info px-3">{{ packageStat.total }}</span></td>
+                                        <td style="width: 40%">
+                                            <div class="progress" style="height: 6px;">
+                                                <div class="progress-bar bg-info" :style="{ width: (packageStat.total / stats.totalCustomers * 100) + '%' }"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body text-center">
-                        <h6 class="text-muted">Active Customers</h6>
-                        <h3 class="fw-bold text-success">{{ activeCustomers }}</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body text-center">
-                        <h6 class="text-muted">Inactive Customers</h6>
-                        <h3 class="fw-bold text-danger">{{ inactiveCustomers }}</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body text-center">
-                        <h6 class="text-muted">Pending Support Ticket</h6>
-                        <h3 class="fw-bold text-warning">{{ pendingTickets }}</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-3" v-for="packageStat in packageCounts" :key="packageStat.id">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body text-center">
-                        <h6 class="text-muted">Total Users | {{ packageStat.package_name ?? 'N/A' }}</h6>
-                        <h3 class="fw-bold">{{ packageStat.total }}</h3>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body text-center">
-                        <h6 class="text-muted">Total Due Bills</h6>
-                        <h3 class="fw-bold text-danger">{{ totalDueBillingsCount }}</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body text-center">
-                        <h6 class="text-muted">Collection ({{ currentMonthYear }})</h6>
-                        <h3 class="fw-bold text-primary">৳ {{ totalSalesAmountFormatted }}</h3>
+            <div class="col-12 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-body p-4 d-flex flex-column justify-content-center text-center">
+                        <div class="bg-danger bg-opacity-10 p-4 rounded-circle d-inline-block mx-auto mb-3">
+                            <i class="bx bx-error-circle fs-1 text-danger"></i>
+                        </div>
+                        <h6 class="text-muted mb-1">Total Due Billings</h6>
+                        <h2 class="fw-bold text-danger mb-3">{{ stats.totalDueBillingsCount }}</h2>
+                        <button class="btn btn-outline-danger rounded-pill px-4 btn-sm">View Reports</button>
                     </div>
                 </div>
             </div>
@@ -69,50 +123,51 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import axios from '@/axios.js';
 
-// 💡 দ্রষ্টব্য: কম্পোনেন্টটি ডেটা রেন্ডার করার জন্য প্রস্তুত। 
-// আপনাকে এখন এই ডেটাগুলি লোড করার জন্য API কল করতে হবে।
+const loading = ref(true);
+const stats = ref({
+    totalCustomers: 0,
+    activeCustomers: 0,
+    inactiveCustomers: 0,
+    pendingTickets: 0,
+    totalDueBillingsCount: 0,
+    totalSalesAmount: 0,
+    packageCounts: [],
+    currentMonthName: ''
+});
 
-// ডামি ডেটা (API কল করার আগে টেস্টিং এর জন্য)
-const totalCustomers = ref(1500);
-const activeCustomers = ref(1450);
-const inactiveCustomers = ref(50);
-const pendingTickets = ref(8);
-const totalDueBillingsCount = ref(120);
-const totalSalesAmount = ref(150000.75);
+const fetchDashboardStats = async () => {
+    loading.value = true;
+    try {
+        const response = await axios.get('dashboard');
+        if (response.data.success) {
+            stats.value = response.data.data;
+        }
+    } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+    } finally {
+        loading.value = false;
+    }
+};
 
-// Blade লুপের জন্য ডামি প্যাকেজ ডেটা
-const packageCounts = ref([
-    { id: 1, package_name: 'Silver 10Mbps', total: 600 },
-    { id: 2, package_name: 'Gold 20Mbps', total: 400 },
-    { id: 3, package_name: 'Platinum 50Mbps', total: 300 },
-]);
-
-
-// ফাংশন এবং কম্পিউটেড প্রপার্টি (Blade লজিক প্রতিস্থাপনের জন্য)
-
-// সংখ্যাকে কমা দিয়ে ফরম্যাট করার জন্য ফাংশন
-// const formatNumber = (value) => {
-//   return value.toLocaleString('en-IN', { maximumFractionDigits: 0 });
-// };
-
-// টাকার পরিমাণকে ২ দশমিক স্থান এবং কমা দিয়ে ফরম্যাট করা
 const totalSalesAmountFormatted = computed(() => {
-    return totalSalesAmount.value.toLocaleString('en-IN', {
+    return (stats.value.totalSalesAmount || 0).toLocaleString('en-IN', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     });
 });
 
-// কার্বন ফাংশন প্রতিস্থাপন: বর্তমান মাস ও বছর
-const currentMonthYear = computed(() => {
-    const now = new Date();
-    return now.toLocaleString('en-IN', { month: 'short', year: 'numeric' });
+onMounted(() => {
+    fetchDashboardStats();
 });
-
 </script>
 
 <style scoped>
-/* আপনার টেমপ্লেটের অন্যান্য CSS (যদি প্রয়োজন হয়) */
+.rounded-4 { border-radius: 1rem !important; }
+.bg-opacity-10 { --bs-bg-opacity: 0.1; }
+.progress { background-color: #f0f0f0; border-radius: 10px; }
+.table thead th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; }
+/* Boxicons ব্যবহার করতে হলে আপনার index.html এ লিঙ্কটি থাকতে হবে */
 </style>

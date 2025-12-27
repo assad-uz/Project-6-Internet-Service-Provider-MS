@@ -14,45 +14,55 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    // 💡 আপনার রাউট অনুযায়ী মেথডের নাম 'index' করা হলো
     public function index() 
     {
-        // চলতি মাস নির্ধারণ
-        $currentMonth = Carbon::now()->startOfMonth();
-        
-        // ১. মোট ব্যবহারকারী (Customer)
-        $totalCustomers = Customer::count();
-        
-        // ২. সক্রিয় ও নিষ্ক্রিয় ব্যবহারকারী (ধরে নিচ্ছি Customer মডেলে 'status' আছে)
-        $activeCustomers = Customer::where('status', 'active')->count();
-        $inactiveCustomers = Customer::where('status', 'inactive')->count();
-        
-        // ৩. বকেয়া বিলের সংখ্যা
-        $totalDueBillingsCount = Billing::whereIn('status', ['unpaid', 'partially_paid'])->count();
-        
-        // ৪. প্যাকেজ অনুযায়ী ব্যবহারকারী
-        $packageCounts = Connection::select('package_id', DB::raw('count(*) as total'))
-                                   ->groupBy('package_id')
-                                   ->with('package') 
-                                   ->get();
-                                   
-        // ৫. পেন্ডিং সাপোর্ট টিকিট
-        // $pendingTickets = Ticket::where('status', 'pending')->count(); 
-        $pendingTickets = 8;
-        
-        // ৬. মোট সংগৃহীত অর্থ (চলতি মাসে)
-        $totalSalesAmount = Payment::where('payment_date', '>=', $currentMonth)
-                                   ->sum('amount');
+        try {
+            // চলতি মাস নির্ধারণ
+            $currentMonth = Carbon::now()->startOfMonth();
+            
+            // ১. কাস্টমার সামারি
+            $totalCustomers = Customer::count();
+            $activeCustomers = Customer::where('status', 'active')->count();
+            $inactiveCustomers = Customer::where('status', 'inactive')->count();
+            
+            // ২. বকেয়া বিলের সংখ্যা (Unpaid/Partial)
+            $totalDueBillingsCount = Billing::whereIn('status', ['unpaid', 'partially_paid'])->count();
+            
+            // ৩. প্যাকেজ অনুযায়ী কাস্টমার ডিস্ট্রিবিউশন (Chart এর জন্য ভালো)
+            $packageCounts = Connection::select('package_id', DB::raw('count(*) as total'))
+                                       ->groupBy('package_id')
+                                       ->with('package:id,package_name') 
+                                       ->get();
+                                       
+            // ৪. সাপোর্ট টিকিট (পেন্ডিং)
+            // $pendingTickets = Ticket::where('status', 'pending')->count(); 
+            $pendingTickets = 8; // আপনার ডামি ডাটা অনুযায়ী
+            
+            // ৫. চলতি মাসের মোট কালেকশন
+            $totalSalesAmount = Payment::where('payment_date', '>=', $currentMonth)
+                                       ->sum('amount');
 
-        // ভিউতে ডেটা পাঠানো
-        return view('pages.admin.dashboard', [
-            'totalCustomers' => $totalCustomers,
-            'activeCustomers' => $activeCustomers,
-            'inactiveCustomers' => $inactiveCustomers,
-            'pendingTickets' => $pendingTickets,
-            'packageCounts' => $packageCounts,
-            'totalDueBillingsCount' => $totalDueBillingsCount,
-            'totalSalesAmount' => $totalSalesAmount,
-        ]);
+            // JSON রেসপন্স পাঠানো
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'totalCustomers' => $totalCustomers,
+                    'activeCustomers' => $activeCustomers,
+                    'inactiveCustomers' => $inactiveCustomers,
+                    'pendingTickets' => $pendingTickets,
+                    'packageCounts' => $packageCounts,
+                    'totalDueBillingsCount' => $totalDueBillingsCount,
+                    'totalSalesAmount' => (float) $totalSalesAmount, // নিশ্চিত করতে float
+                    'currentMonthName' => $currentMonth->format('F Y'), // ফ্রন্টএন্ডে দেখানোর জন্য
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch dashboard data.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
