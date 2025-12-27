@@ -7,58 +7,60 @@ use Illuminate\Http\Request;
 
 class CustomerTypeController extends Controller
 {
-    // 1. INDEX: সমস্ত কাস্টমার টাইপ দেখানোর জন্য
+    // 1. INDEX: সমস্ত কাস্টমার টাইপ JSON আকারে পাঠানোর জন্য
     public function index()
     {
+        // প্যাগিনেশন সহ ডেটা নেওয়া হচ্ছে (Vue-তে প্যাগিনেশন হ্যান্ডেল করা সহজ হবে)
         $customerTypes = CustomerType::orderBy('id', 'desc')->paginate(10); 
-        return view('pages.admin.customer_types.index', compact('customerTypes'));
+        
+        return response()->json($customerTypes, 200);
     }
 
-    // 2. CREATE: নতুন ফর্ম দেখানোর জন্য
-    public function create()
-    {
-        return view('pages.admin.customer_types.create');
-    }
+    // API-তে create() এবং edit() মেথড লাগে না কারণ ফর্ম থাকে Vue-তে।
 
-    // 3. STORE: নতুন ডেটা সেভ করার জন্য
+    // 2. STORE: নতুন ডেটা সেভ করার জন্য
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:50|unique:customer_types,name',
         ]);
         
-        CustomerType::create($validated);
+        $customerType = CustomerType::create($validated);
 
-        return redirect()->route('customer_types.index')
-                         ->with('success', 'Customer Type created successfully.');
+        return response()->json([
+            'message' => 'Customer Type created successfully.',
+            'data' => $customerType
+        ], 201); // 201: Created
     }
 
-    // 4. EDIT: এডিট ফর্ম দেখানোর জন্য
-    public function edit(CustomerType $customerType)
+    // 3. SHOW: নির্দিষ্ট একটি টাইপ দেখার জন্য (Vue Edit পেজে এটি কাজে লাগবে)
+    public function show(CustomerType $customerType)
     {
-        return view('pages.admin.customer_types.edit', compact('customerType'));
+        return response()->json($customerType, 200);
     }
 
-    // 5. UPDATE: ডেটা আপডেট করার জন্য
+    // 4. UPDATE: ডেটা আপডেট করার জন্য
     public function update(Request $request, CustomerType $customerType)
     {
         $validated = $request->validate([
-            // বর্তমান row-টিকে বাদ দিয়ে uniqueness চেক করা হচ্ছে
             'name' => 'required|string|max:50|unique:customer_types,name,' . $customerType->id,
         ]);
 
         $customerType->update($validated);
 
-        return redirect()->route('customer_types.index')
-                         ->with('success', 'Customer Type updated successfully.');
+        return response()->json([
+            'message' => 'Customer Type updated successfully.',
+            'data' => $customerType
+        ], 200);
     }
 
-    // 6. DESTROY: ডেটা ডিলিট করার জন্য
+    // 5. DESTROY: ডেটা ডিলিট করার জন্য
     public function destroy(CustomerType $customerType)
     {
         $customerType->delete();
         
-        return redirect()->route('customer_types.index')
-                         ->with('success', 'Customer Type deleted successfully.');
+        return response()->json([
+            'message' => 'Customer Type deleted successfully.'
+        ], 200);
     }
 }
