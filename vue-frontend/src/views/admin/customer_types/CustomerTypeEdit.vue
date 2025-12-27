@@ -7,7 +7,7 @@
             <div class="card-body">
 
                 <div v-if="validationErrors.length" class="alert alert-danger">
-                    <ul>
+                    <ul class="mb-0">
                         <li v-for="(error, index) in validationErrors" :key="index">{{ error }}</li>
                     </ul>
                 </div>
@@ -16,19 +16,23 @@
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-2">Loading type data...</p>
+                    <p class="mt-2">Loading type data from server...</p>
                 </div>
 
                 <form v-else @submit.prevent="updateCustomerType">
                     
                     <div class="mb-3">
                         <label for="name" class="form-label">Type Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="name" v-model="form.name" required>
+                        <input type="text" class="form-control" id="name" v-model="form.name" required :disabled="saving">
                     </div>
                     
                     <div class="d-flex justify-content-between mt-4">
                         <router-link :to="{ name: 'customer_types.index' }" class="btn btn-secondary">Back to list</router-link>
-                        <button type="submit" class="btn btn-warning">Update Type</button>
+                        
+                        <button type="submit" class="btn btn-warning" :disabled="saving">
+                            <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                            {{ saving ? 'Updating...' : 'Update Type' }}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -39,65 +43,61 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import axios from '@/axios.js'; // আপনার Axios কনফিগারেশন
 
-const route = useRoute(); // রুট প্যারামিটার নেওয়ার জন্য
+const route = useRoute(); 
 const router = useRouter(); 
 
-const loading = ref(true); // লোডিং স্টেট
-const typeId = ref(null); // টাইপ আইডি
+const loading = ref(true); // পেজ লোডের সময় ডাটা ফেচিং স্টেট
+const saving = ref(false);  // ফর্ম সাবমিট করার সময় সেভিং স্টেট
+const typeId = ref(null); 
 const validationErrors = ref([]);
 
-// 💡 ডামি ফর্ম ডেটা সেট করা হলো
 const form = ref({
     name: '',
 });
 
-// ডামি কাস্টমার টাইপ ডেটা
-const dummyCustomerTypes = [
-    { id: 1, name: 'Residential', created_at: '2025-01-15T10:00:00Z' },
-    { id: 2, name: 'SME/Office', created_at: '2025-05-20T11:30:00Z' },
-    { id: 3, name: 'Corporate', created_at: '2025-10-01T15:45:00Z' },
-];
-
-// কাস্টমার টাইপ ডেটা লোড করার ডামি ফাংশন
+// ১. API থেকে নির্দিষ্ট টাইপের ডেটা নিয়ে আসা
 const fetchCustomerType = async (id) => {
     loading.value = true;
-    
-    // 🎯 পরে: এখানে Axios.get('/api/customer-types/' + id) কল করা হবে।
-    
-    // ডামি লজিক: আইডি দ্বারা ডামি ডেটা খুঁজে বের করা
-    const typeData = dummyCustomerTypes.find(t => t.id === parseInt(id));
-    
-    if (typeData) {
-        // ফর্ম ডেটা পূরণ করা
-        form.value.name = typeData.name;
-    } else {
-        alert('Customer type not found (Static Mode)');
+    try {
+        const response = await axios.get(`customer_types/${id}`);
+        form.value.name = response.data.name; 
+    } catch (error) {
+        console.error("Error fetching customer type:", error);
+        alert('Customer type not found!');
         router.push({ name: 'customer_types.index' });
+    } finally {
+        loading.value = false;
     }
-    
-    loading.value = false;
 };
 
-// ফর্ম সাবমিশন লজিক (পরে এটি API কল করবে)
-const updateCustomerType = () => {
-    validationErrors.value = [];
-    
-    // 1. ভ্যালিডেশন চেক (আপাতত ডামি)
-    if (!form.value.name) {
-        validationErrors.value = ['Type Name is required.'];
-        return;
+// ২. ডেটা আপডেট করার ফাংশন (PUT Request)
+const updateCustomerType = async () => {
+    saving.value = true;
+    validationErrors.value = []; 
+
+    try {
+        const response = await axios.put(`customer_types/${typeId.value}`, form.value);
+        
+        alert(response.data.message || 'Customer Type updated successfully!'); 
+        router.push({ name: 'customer_types.index' });
+
+    } catch (error) {
+        // লারাভেল ভ্যালিডেশন এরর হ্যান্ডেল করা
+        if (error.response && error.response.status === 422) {
+            const errors = error.response.data.errors;
+            validationErrors.value = Object.values(errors).flat();
+        } else {
+            console.error("Update failed:", error);
+            alert('Failed to update. Please try again.');
+        }
+    } finally {
+        saving.value = false;
     }
-
-    // 2. 🎯 পরে: এখানে Axios.put('/api/customer-types/' + typeId.value) কল করা হবে।
-    console.log(`Customer Type ID ${typeId.value} update data submitted:`, form.value);
-
-    // 3. ডামি সাকসেস লজিক: index পেজে রিডাইরেক্ট করে মেসেজ দেখানো
-    alert(`Customer Type "${form.value.name}" updated successfully! (Static Mode)`); 
-    router.push({ name: 'customer_types.index' });
 };
 
-// কম্পোনেন্ট লোড হওয়ার সময় আইডি নিয়ে ডেটা লোড করা
+// কম্পোনেন্ট মাউন্ট হলে আইডি নিয়ে ডেটা লোড করা
 onMounted(() => {
     typeId.value = route.params.id;
     if (typeId.value) {
@@ -107,5 +107,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* স্টাইল এখানে যোগ করুন */
+.card {
+    border: none;
+    border-radius: 12px;
+}
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
 </style>
