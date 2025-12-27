@@ -7,7 +7,7 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="mb-0">User Management</h3>
-            
+
             <router-link :to="{ name: 'users.create' }" class="btn btn-primary">
                 + Create New User
             </router-link>
@@ -35,11 +35,13 @@
                         </tr>
 
                         <tr v-for="(user, index) in users" :key="user.id" v-else>
-                            <td class="text-center">{{ (pagination.current_page - 1) * pagination.per_page + index + 1 }}</td> 
+                            <td class="text-center">{{ (pagination.current_page - 1) * pagination.per_page + index + 1
+                                }}</td>
 
                             <td class="text-center">
                                 <template v-if="user.avatar">
-                                    <img :src="getImageUrl(user.avatar)" :alt="user.name + ' Avatar'" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                    <img :src="getImageUrl(user.avatar)" :alt="user.name + ' Avatar'"
+                                        class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
                                 </template>
                                 <template v-else>
                                     <span class="text-muted">N/A</span>
@@ -49,9 +51,10 @@
                             <td>{{ user.name }}</td>
                             <td>{{ user.email }}</td>
                             <td>{{ user.phone ?? 'N/A' }}</td>
-                            
+
                             <td class="text-center">
-                                <span :class="getRoleBadgeClass(user.role)" class="badge">{{ capitalize(user.role) }}</span>
+                                <span :class="getRoleBadgeClass(user.role)" class="badge">{{ capitalize(user.role)
+                                    }}</span>
                             </td>
 
                             <td>
@@ -63,9 +66,10 @@
                                     <span class="text-muted">Never</span>
                                 </template>
                             </td>
-                            
+
                             <td class="text-center">
-                                <router-link :to="{ name: 'users.edit', params: { id: user.id } }" class="btn btn-warning btn-icon btn-sm">
+                                <router-link :to="{ name: 'users.edit', params: { id: user.id } }"
+                                    class="btn btn-warning btn-icon btn-sm">
                                     <i class="bx bx-edit text-white"></i>
                                 </router-link>
 

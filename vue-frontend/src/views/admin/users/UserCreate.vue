@@ -1,14 +1,16 @@
 <template>
     <div class="container mt-5">
-        <div class="card shadow-lg">
+        <div class="card shadow-lg border-0">
             <div class="card-header bg-success text-white">
                 <h4 class="mb-0">Create New User</h4>
             </div>
             <div class="card-body">
 
-                <div v-if="validationErrors.length" class="alert alert-danger">
-                    <ul>
-                        <li v-for="(error, index) in validationErrors" :key="index">{{ error }}</li>
+                <div v-if="Object.keys(validationErrors).length" class="alert alert-danger">
+                    <ul class="mb-0">
+                        <template v-for="(errors, field) in validationErrors" :key="field">
+                            <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
+                        </template>
                     </ul>
                 </div>
 
@@ -49,9 +51,16 @@
                         <small class="form-text text-muted">Max 2MB. Allowed formats: jpeg, png, jpg, gif.</small>
                     </div>
 
+                    <div v-if="previewUrl" class="mb-3">
+                        <img :src="previewUrl" class="img-thumbnail" style="max-height: 100px;">
+                    </div>
+
                     <div class="d-flex justify-content-between mt-4">
-                        <router-link :to="{ name: 'users.index' }" class="btn btn-secondary">Back to list</router-link>
-                        <button type="submit" class="btn btn-success">Save user</button>
+                        <router-link :to="{ name: 'users.index' }" class="btn btn-secondary px-4">Back to list</router-link>
+                        <button type="submit" class="btn btn-success px-5" :disabled="loading">
+                            <span v-if="loading" class="spinner-border spinner-border-sm me-1"></span>
+                            Save User
+                        </button>
                     </div>
                 </form>
             </div>
@@ -61,47 +70,75 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router'; // রাউটিং এর জন্য
+import { useRouter } from 'vue-router';
+import axios from '@/axios.js'; // আপনার axios কনফিগ ফাইল
 
 const router = useRouter();
+const loading = ref(false);
+const validationErrors = ref({});
+const previewUrl = ref(null);
 
-// 💡 ডামি ফর্ম ডেটা সেট করা হলো
 const form = ref({
     name: '',
     email: '',
     password: '',
     phone: '',
-    role: 'technician', // ডিফল্ট ভ্যালু
-    avatar: null, // ফাইল ডেটা
+    role: 'technician',
+    avatar: null,
 });
 
-const validationErrors = ref([]);
-
-// ফাইল ইনপুট হ্যান্ডলিং
+// ফাইল হ্যান্ডলিং এবং প্রিভিউ
 const handleFileChange = (event) => {
-    // শুধুমাত্র প্রথম ফাইলটি ফর্ম ডেটাতে সংরক্ষণ করা
-    form.value.avatar = event.target.files[0];
+    const file = event.target.files[0];
+    if (file) {
+        form.value.avatar = file;
+        previewUrl.value = URL.createObjectURL(file); // ইমেজের একটি প্রিভিউ তৈরি করবে
+    }
 };
 
-// ফর্ম সাবমিশন লজিক (পরে এটি API কল করবে)
-const createUser = () => {
-    // 1. ভ্যালিডেশন চেক (আপাতত ডামি)
-    if (!form.value.name || !form.value.email || !form.value.password) {
-        validationErrors.value = ['Name, Email, and Password are required.'];
-        return;
-    }
-    
-    validationErrors.value = []; // এরর থাকলে ক্লিয়ার
-    
-    // 2. 🎯 পরে: এখানে Axios দিয়ে API কল করে ডেটা Laravel ব্যাকএন্ডে পাঠানো হবে।
-    console.log('User form submitted:', form.value);
+// এপিআই কল করার লজিক
+const createUser = async () => {
+    loading.value = true;
+    validationErrors.value = {};
 
-    // 3. ডামি সাকসেস লজিক: index পেজে রিডাইরেক্ট করে মেসেজ দেখানো
-    alert('User created successfully! (Static Mode)'); 
-    router.push({ name: 'users.index' }); 
+    // FormData অবজেক্ট তৈরি করা (ইমেজ পাঠানোর জন্য এটি প্রয়োজন)
+    const formData = new FormData();
+    formData.append('name', form.value.name);
+    formData.append('email', form.value.email);
+    formData.append('password', form.value.password);
+    formData.append('phone', form.value.phone || '');
+    formData.append('role', form.value.role);
+    
+    if (form.value.avatar) {
+        formData.append('avatar', form.value.avatar);
+    }
+
+    try {
+        const response = await axios.post('users', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        if (response.data.success) {
+            // সাকসেস হলে লিস্ট পেজে পাঠিয়ে দেওয়া
+            router.push({ name: 'users.index' });
+        }
+    } catch (error) {
+        if (error.response && error.response.status === 422) {
+            // লারাভেল ভ্যালিডেশন এরর গুলো এখানে ধরবে
+            validationErrors.value = error.response.data.errors;
+        } else {
+            console.error("Submission error:", error);
+            alert("Something went wrong. Please try again.");
+        }
+    } finally {
+        loading.value = false;
+    }
 };
 </script>
 
 <style scoped>
-/* কার্ডের জন্য কাস্টম স্টাইল (যদি প্রয়োজন হয়) */
+.card { border-radius: 12px; }
+.card-header { border-radius: 12px 12px 0 0 !important; }
 </style>
