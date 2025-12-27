@@ -7,7 +7,7 @@
             <div class="card-body">
 
                 <div v-if="validationErrors.length" class="alert alert-danger">
-                    <ul>
+                    <ul class="mb-0">
                         <li v-for="(error, index) in validationErrors" :key="index">{{ error }}</li>
                     </ul>
                 </div>
@@ -16,34 +16,38 @@
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-2">Loading package data...</p>
+                    <p class="mt-2">Loading package data from server...</p>
                 </div>
 
                 <form v-else @submit.prevent="updatePackage">
                     
                     <div class="mb-3">
                         <label for="package_code" class="form-label">Package Code (Optional)</label>
-                        <input type="text" class="form-control" id="package_code" v-model="form.package_code">
+                        <input type="text" class="form-control" id="package_code" v-model="form.package_code" :disabled="saving">
                     </div>
                     
                     <div class="mb-3">
                         <label for="package_name" class="form-label">Package Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="package_name" v-model="form.package_name" required>
+                        <input type="text" class="form-control" id="package_name" v-model="form.package_name" required :disabled="saving">
                     </div>
 
                     <div class="mb-3">
                         <label for="speed" class="form-label">Speed (in Mbps) <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" id="speed" v-model="form.speed" required>
+                        <input type="number" class="form-control" id="speed" v-model="form.speed" required :disabled="saving">
                     </div>
                     
                     <div class="mb-3">
                         <label for="price" class="form-label">Price (BDT) <span class="text-danger">*</span></label>
-                        <input type="number" step="0.01" class="form-control" id="price" v-model="form.price" required>
+                        <input type="number" step="0.01" class="form-control" id="price" v-model="form.price" required :disabled="saving">
                     </div>
                     
                     <div class="d-flex justify-content-between mt-4">
                         <router-link :to="{ name: 'packages.index' }" class="btn btn-secondary">Back to list</router-link>
-                        <button type="submit" class="btn btn-warning">Update Package</button>
+                        
+                        <button type="submit" class="btn btn-warning" :disabled="saving">
+                            <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                            {{ saving ? 'Updating...' : 'Update Package' }}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -54,15 +58,16 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import axios from '@/axios.js'; // আপনার Axios কনফিগারেশন
 
-const route = useRoute(); // রুট প্যারামিটার নেওয়ার জন্য
+const route = useRoute(); 
 const router = useRouter(); 
 
-const loading = ref(true); // লোডিং স্টেট
-const packageId = ref(null); // প্যাকেজ আইডি
+const loading = ref(true); // ডেটা ফেচিং লোডার
+const saving = ref(false);  // আপডেট সাবমিশন লোডার
+const packageId = ref(null); 
 const validationErrors = ref([]);
 
-// 💡 ডামি ফর্ম ডেটা সেট করা হলো
 const form = ref({
     package_code: '',
     package_name: '',
@@ -70,56 +75,53 @@ const form = ref({
     price: null,
 });
 
-// ডামি প্যাকেজ ডেটা
-const dummyPackages = [
-    { id: 1, package_code: 'P-10M', package_name: 'Residential Economy', speed: 10, price: 800.00 },
-    { id: 2, package_code: 'P-20M', package_name: 'Home Standard', speed: 20, price: 1250.50 },
-    { id: 3, package_code: 'P-50M', package_name: 'Corporate Fast', speed: 50, price: 3500.00 },
-];
-
-// প্যাকেজ ডেটা লোড করার ডামি ফাংশন
+// ১. এপিআই থেকে প্যাকেজের ডেটা নিয়ে আসা
 const fetchPackage = async (id) => {
     loading.value = true;
-    
-    // 🎯 পরে: এখানে Axios.get('/api/packages/' + id) কল করা হবে।
-    
-    // ডামি লজিক: আইডি দ্বারা ডামি ডেটা খুঁজে বের করা
-    const packageData = dummyPackages.find(p => p.id === parseInt(id));
-    
-    if (packageData) {
-        // ফর্ম ডেটা পূরণ করা
-        form.value.package_code = packageData.package_code;
-        form.value.package_name = packageData.package_name;
-        // ensure speed and price are numbers
-        form.value.speed = packageData.speed; 
-        form.value.price = packageData.price; 
-    } else {
-        alert('Package not found (Static Mode)');
+    try {
+        const response = await axios.get(`packages/${id}`);
+        const data = response.data;
+        
+        // ফর্ম ফিল্ডগুলো পূর্ণ করা
+        form.value.package_code = data.package_code;
+        form.value.package_name = data.package_name;
+        form.value.speed = data.speed;
+        form.value.price = data.price;
+    } catch (error) {
+        console.error("Error fetching package:", error);
+        alert('Package not found or server error!');
         router.push({ name: 'packages.index' });
+    } finally {
+        loading.value = false;
     }
-    
-    loading.value = false;
 };
 
-// ফর্ম সাবমিশন লজিক (পরে এটি API কল করবে)
-const updatePackage = () => {
-    validationErrors.value = [];
-    
-    // 1. ভ্যালিডেশন চেক (আপাতত ডামি)
-    if (!form.value.package_name || !form.value.speed || !form.value.price || form.value.speed <= 0 || form.value.price <= 0) {
-        validationErrors.value = ['Package Name, Speed, and Price are required and must be greater than zero.'];
-        return;
+// ২. এপিআই-তে আপডেট রিকোয়েস্ট পাঠানো
+const updatePackage = async () => {
+    saving.value = true;
+    validationErrors.value = []; 
+
+    try {
+        const response = await axios.put(`packages/${packageId.value}`, form.value);
+        
+        alert(response.data.message || 'Package updated successfully!'); 
+        router.push({ name: 'packages.index' });
+
+    } catch (error) {
+        // লারাভেল ৪২২ (ভ্যালিডেশন এরর) হ্যান্ডেল করা
+        if (error.response && error.response.status === 422) {
+            const errors = error.response.data.errors;
+            validationErrors.value = Object.values(errors).flat();
+        } else {
+            console.error("Update error:", error);
+            alert('Something went wrong during update.');
+        }
+    } finally {
+        saving.value = false;
     }
-
-    // 2. 🎯 পরে: এখানে Axios.put('/api/packages/' + packageId.value) কল করা হবে।
-    console.log(`Package ID ${packageId.value} update data submitted:`, form.value);
-
-    // 3. ডামি সাকসেস লজিক: index পেজে রিডাইরেক্ট করে মেসেজ দেখানো
-    alert(`Package "${form.value.package_name}" updated successfully! (Static Mode)`); 
-    router.push({ name: 'packages.index' });
 };
 
-// কম্পোনেন্ট লোড হওয়ার সময় আইডি নিয়ে ডেটা লোড করা
+// পেজ লোড হওয়ার সাথে সাথে আইডি ধরে ডেটা আনা
 onMounted(() => {
     packageId.value = route.params.id;
     if (packageId.value) {
@@ -129,5 +131,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* স্টাইল এখানে যোগ করুন */
+.card {
+    border: none;
+    border-radius: 12px;
+}
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
 </style>
