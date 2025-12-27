@@ -7,7 +7,7 @@
             <div class="card-body">
 
                 <div v-if="validationErrors.length" class="alert alert-danger">
-                    <ul>
+                    <ul class="mb-0">
                         <li v-for="(error, index) in validationErrors" :key="index">{{ error }}</li>
                     </ul>
                 </div>
@@ -16,12 +16,16 @@
                     
                     <div class="mb-3">
                         <label for="name" class="form-label">Type Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="name" v-model="form.name" required>
+                        <input type="text" class="form-control" id="name" v-model="form.name" required :disabled="loading">
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
                         <router-link :to="{ name: 'customer_types.index' }" class="btn btn-secondary">Back to list</router-link>
-                        <button type="submit" class="btn btn-success">Save Type</button>
+                        
+                        <button type="submit" class="btn btn-success" :disabled="loading">
+                            <span v-if="loading" class="spinner-border spinner-border-sm me-1"></span>
+                            {{ loading ? 'Saving...' : 'Save Type' }}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -32,35 +36,54 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'; 
+import axios from '@/axios.js'; // Axios instance ইমপোর্ট করা হলো
 
 const router = useRouter();
 
-// 💡 ডামি ফর্ম ডেটা সেট করা হলো
+// ফর্ম ডাটা রিঅ্যাক্টিভ অবজেক্ট
 const form = ref({
     name: '',
 });
 
 const validationErrors = ref([]);
+const loading = ref(false); // সাবমিট করার সময় স্টেট ট্র্যাক করার জন্য
 
-// ফর্ম সাবমিশন লজিক (পরে এটি API কল করবে)
-const createCustomerType = () => {
-    // 1. ভ্যালিডেশন চেক (আপাতত ডামি)
-    if (!form.value.name) {
-        validationErrors.value = ['Type Name is required.'];
-        return;
+// কাস্টমার টাইপ তৈরির মেইন ফাংশন
+const createCustomerType = async () => {
+    loading.value = true;
+    validationErrors.value = []; // পুরানো এরর পরিষ্কার করা
+
+    try {
+        // লারাভেল এপিআই-তে POST রিকোয়েস্ট পাঠানো হচ্ছে
+        const response = await axios.post('customer_types', form.value);
+        
+        // সাকসেস হলে ইউজারকে মেসেজ দেখানো এবং ইনডেক্স পেজে পাঠানো
+        alert(response.data.message || 'Customer Type created successfully!'); 
+        router.push({ name: 'customer_types.index' }); 
+
+    } catch (error) {
+        // যদি লারাভেল থেকে ভ্যালিডেশন এরর (৪২২) আসে
+        if (error.response && error.response.status === 422) {
+            const errors = error.response.data.errors;
+            // এরর অবজেক্টকে একটি সিম্পল অ্যারেতে রূপান্তর করা
+            validationErrors.value = Object.values(errors).flat();
+        } else {
+            console.error('Error creating customer type:', error);
+            alert('Something went wrong. Please try again.');
+        }
+    } finally {
+        loading.value = false;
     }
-    
-    validationErrors.value = []; // এরর থাকলে ক্লিয়ার
-    
-    // 2. 🎯 পরে: এখানে Axios দিয়ে API কল করে ডেটা Laravel ব্যাকএন্ডে পাঠানো হবে।
-    console.log('Customer Type submitted:', form.value);
-
-    // 3. ডামি সাকসেস লজিক: index পেজে রিডাইরেক্ট করে মেসেজ দেখানো
-    alert('Customer Type created successfully! (Static Mode)'); 
-    router.push({ name: 'customer_types.index' }); 
 };
 </script>
 
 <style scoped>
-/* স্টাইল এখানে যোগ করুন */
+/* কার্ডের জন্য কাস্টম ডিজাইন */
+.card {
+    border: none;
+    border-radius: 10px;
+}
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
 </style>
