@@ -9,82 +9,73 @@ use Illuminate\Validation\Rule;
 class PackageController extends Controller
 {
     /**
-     * Display a listing of the resource (packages.index).
-     * Show the list of packages.
+     * Display a listing of the resource (API).
      */
     public function index()
     {
-        // Fetch packages ordered by ID ascending so new packages appear at the bottom.
-        $packages = Package::orderBy('id', 'asc')->paginate(10);
-
-        // Assumes view path is resources/views/pages/admin/packages/index.blade.php
-        return view('pages.admin.packages.index', compact('packages'));
+        // নতুন প্যাকেজগুলো উপরে দেখানোর জন্য 'desc' ব্যবহার করা ভালো, তবে আপনার চাহিদা অনুযায়ী 'asc' রাখতে পারেন।
+        $packages = Package::orderBy('id', 'desc')->paginate(10);
+        
+        return response()->json($packages, 200);
     }
 
     /**
-     * Show the form for creating a new resource (packages.create).
-     */
-    public function create()
-    {
-        // Assumes view path is resources/views/pages/admin/packages/create.blade.php
-        return view('pages.admin.packages.create');
-    }
-
-    /**
-     * Store a newly created resource in storage (packages.store).
+     * Store a newly created resource in storage (API).
      */
     public function store(Request $request)
     {
-        // Validation rules based on the 'packages' table structure
         $validatedData = $request->validate([
             'package_code' => 'required|string|max:10|unique:packages,package_code',
             'package_name' => 'required|string|max:100',
-            'speed' => 'required|string|max:50',
-            'price' => 'required|numeric|min:0', // Price must be a number >= 0
+            'speed'        => 'required|string|max:50',
+            'price'        => 'required|numeric|min:0',
         ]);
 
-        Package::create($validatedData);
+        $package = Package::create($validatedData);
 
-        return redirect()->route('packages.index')
-            ->with('success', 'Package created successfully.');
+        return response()->json([
+            'message' => 'Package created successfully.',
+            'data'    => $package
+        ], 201);
     }
 
     /**
-     * Show the form for editing the specified resource (packages.edit).
+     * Display the specified resource (API).
      */
-    public function edit(Package $package)
+    public function show(Package $package)
     {
-        // Route Model Binding automatically fetches the Package based on ID
-        return view('pages.admin.packages.edit', compact('package'));
+        return response()->json($package, 200);
     }
 
     /**
-     * Update the specified resource in storage (packages.update).
+     * Update the specified resource in storage (API).
      */
     public function update(Request $request, Package $package)
     {
         $validatedData = $request->validate([
-            // Package code must be unique, ignoring the current package's ID
             'package_code' => ['required', 'string', 'max:10', Rule::unique('packages')->ignore($package->id)],
             'package_name' => 'required|string|max:100',
-            'speed' => 'required|string|max:50',
-            'price' => 'required|numeric|min:0',
+            'speed'        => 'required|string|max:50',
+            'price'        => 'required|numeric|min:0',
         ]);
 
         $package->update($validatedData);
 
-        return redirect()->route('packages.index')
-            ->with('success', 'Package updated successfully.');
+        return response()->json([
+            'message' => 'Package updated successfully.',
+            'data'    => $package
+        ], 200);
     }
 
     /**
-     * Remove the specified resource from storage (packages.destroy).
+     * Remove the specified resource from storage (API).
      */
     public function destroy(Package $package)
     {
         $package->delete();
 
-        return redirect()->route('packages.index')
-            ->with('success', 'Package deleted successfully.');
+        return response()->json([
+            'message' => 'Package deleted successfully.'
+        ], 200);
     }
 }
