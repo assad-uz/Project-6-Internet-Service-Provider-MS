@@ -65,7 +65,7 @@
                 </div>
                 <div class="flex-grow-1 ms-3">
                     <h6 class="text-white text-opacity-75 mb-1 small">Collection ({{ stats.currentMonthName || 'Monthly' }})</h6>
-                    <h3 class="fw-bold mb-0">৳ {{ totalSalesAmountFormatted }}</h3>
+                    <h3 class="fw-bold mb-0 text-white">৳ {{ totalSalesAmountFormatted }}</h3>
                 </div>
             </div>
         </div>
