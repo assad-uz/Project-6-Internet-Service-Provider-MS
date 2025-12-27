@@ -1,7 +1,9 @@
 <template>
     <div class="container mt-4">
-
-        <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
+        <div v-if="successMessage" class="alert alert-success alert-dismissible fade show">
+            {{ successMessage }}
+            <button type="button" class="btn-close" @click="successMessage = null"></button>
+        </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="mb-0">User Management</h3>
@@ -28,12 +30,16 @@
                     </thead>
 
                     <tbody>
-                        <tr v-for="(user, index) in users" :key="user.id">
-                            <td class="text-center">{{ index + 1 }}</td> 
+                        <tr v-if="loading">
+                            <td colspan="8" class="text-center py-4">Loading users...</td>
+                        </tr>
+
+                        <tr v-for="(user, index) in users" :key="user.id" v-else>
+                            <td class="text-center">{{ (pagination.current_page - 1) * pagination.per_page + index + 1 }}</td> 
 
                             <td class="text-center">
-                                <template v-if="user.avatar_url">
-                                    <img :src="user.avatar_url" :alt="user.name + ' Avatar'" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                <template v-if="user.avatar">
+                                    <img :src="getImageUrl(user.avatar)" :alt="user.name + ' Avatar'" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
                                 </template>
                                 <template v-else>
                                     <span class="text-muted">N/A</span>
@@ -42,10 +48,9 @@
 
                             <td>{{ user.name }}</td>
                             <td>{{ user.email }}</td>
-                            
                             <td>{{ user.phone ?? 'N/A' }}</td>
                             
-                            <td>
+                            <td class="text-center">
                                 <span :class="getRoleBadgeClass(user.role)" class="badge">{{ capitalize(user.role) }}</span>
                             </td>
 
@@ -60,7 +65,9 @@
                             </td>
                             
                             <td class="text-center">
-                                <router-link :to="{ name: 'users.edit', params: { id: user.id } }" class="btn btn-warning btn-icon btn-sm"><i class="bx bx-edit text-white"></i></router-link>
+                                <router-link :to="{ name: 'users.edit', params: { id: user.id } }" class="btn btn-warning btn-icon btn-sm">
+                                    <i class="bx bx-edit text-white"></i>
+                                </router-link>
 
                                 <button @click="deleteUser(user.id)" class="btn btn-danger btn-icon btn-sm ms-1">
                                     <i class="bx bx-trash text-white"></i>
@@ -68,67 +75,92 @@
                             </td>
                         </tr>
 
-                        <tr v-if="users.length === 0">
-                            <td colspan="8" class="text-center text-muted">No users found.</td>
+                        <tr v-if="!loading && users.length === 0">
+                            <td colspan="8" class="text-center text-muted py-4">No users found.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <div class="d-flex justify-content-center mt-3">
-            </div>
-
+        <div v-if="pagination.last_page > 1" class="d-flex justify-content-center mt-3">
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" :class="{ disabled: pagination.current_page === 1 }">
+                        <button class="page-link" @click="fetchUsers(pagination.current_page - 1)">Previous</button>
+                    </li>
+                    <li class="page-item active">
+                        <span class="page-link">{{ pagination.current_page }}</span>
+                    </li>
+                    <li class="page-item" :class="{ disabled: pagination.current_page === pagination.last_page }">
+                        <button class="page-link" @click="fetchUsers(pagination.current_page + 1)">Next</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from '@/axios.js';
 
-// --- ডামি ডেটা ---
-const users = ref([
-    { id: 1, name: 'Admin User', email: 'admin@example.com', phone: '01711223344', role: 'admin', avatar_url: 'https://i.pravatar.cc/150?img=1', last_login_at: '2025-12-14T10:00:00Z' },
-    { id: 2, name: 'Manager Doe', email: 'manager@example.com', phone: '01811223344', role: 'manager', avatar_url: null, last_login_at: '2025-12-10T08:30:00Z' },
-    { id: 3, name: 'Staff Smith', email: 'staff@example.com', phone: '01911223344', role: 'staff', avatar_url: 'https://i.pravatar.cc/150?img=3', last_login_at: '2025-11-20T15:45:00Z' },
-    { id: 4, name: 'Viewer Jones', email: 'viewer@example.com', phone: null, role: 'viewer', avatar_url: 'https://i.pravatar.cc/150?img=4', last_login_at: null },
-]);
+const users = ref([]);
+const pagination = ref({
+    current_page: 1,
+    last_page: 1,
+    per_page: 10
+});
+const loading = ref(true);
+const successMessage = ref(null);
 
-const successMessage = ref(null); // 'User deleted successfully!' অথবা null হবে
+// এপিআই থেকে ডেটা আনা
+const fetchUsers = async (page = 1) => {
+    loading.value = true;
+    try {
+        const response = await axios.get(`users?page=${page}`);
+        if (response.data.success) {
+            users.value = response.data.data.data; // লারাভেল প্যাগিনেটেড ডেটা
+            pagination.value = {
+                current_page: response.data.data.current_page,
+                last_page: response.data.data.last_page,
+                per_page: response.data.data.per_page
+            };
+        }
+    } catch (error) {
+        console.error("Error fetching users:", error);
+    } finally {
+        loading.value = false;
+    }
+};
 
-// --- মেথড এবং লজিক ---
+// ইমেজের ফুল পাথ
+const getImageUrl = (path) => {
+    return `http://localhost:8000/storage/${path}`;
+};
 
-// Blade-এর ucfirst() ফাংশন প্রতিস্থাপন
 const capitalize = (str) => {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-// Role অনুসারে বুটস্ট্র্যাপ ব্যাজ ক্লাস নির্ধারণ
 const getRoleBadgeClass = (role) => {
     switch (role) {
-        case 'admin':
-            return 'bg-danger';
-        case 'manager':
-            return 'bg-warning text-dark';
-        case 'staff':
-            return 'bg-info';
-        default:
-            return 'bg-secondary';
+        case 'admin': return 'bg-danger';
+        case 'manager': return 'bg-warning text-dark';
+        case 'technician': return 'bg-info';
+        default: return 'bg-secondary';
     }
 };
 
-// Date Formatting (Moment.js এর বদলে JS Date অবজেক্ট ব্যবহার)
 const formatDate = (isoDate) => {
     if (!isoDate) return '';
     const date = new Date(isoDate);
-    // Simple date formatting (d M Y)
     return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
-// diffForHumans() ফাংশন প্রতিস্থাপন
 const timeAgo = (isoDate) => {
     if (!isoDate) return '';
-    // এটি একটি সরলীকৃত বাস্তবায়ন
     const seconds = Math.floor((new Date() - new Date(isoDate)) / 1000);
     let interval = seconds / 31536000;
     if (interval > 1) return Math.floor(interval) + " years ago";
@@ -143,29 +175,22 @@ const timeAgo = (isoDate) => {
     return Math.floor(seconds) + " seconds ago";
 };
 
-// Delete লজিক (এটি পরে API কল করবে)
-const deleteUser = (userId) => {
+const deleteUser = async (userId) => {
     if (confirm('Are you sure you want to delete this user?')) {
-        // 🎯 পরে: এখানে Axios.delete কল করা হবে
-        console.log(`Deleting user with ID: ${userId}`);
-        
-        // ডামি রিমুভাল
-        users.value = users.value.filter(u => u.id !== userId);
-        successMessage.value = 'User deleted successfully!';
-        setTimeout(() => { successMessage.value = null; }, 3000);
+        try {
+            const response = await axios.delete(`users/${userId}`);
+            if (response.data.success) {
+                successMessage.value = response.data.message;
+                fetchUsers(pagination.value.current_page);
+                setTimeout(() => { successMessage.value = null; }, 3000);
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+        }
     }
 };
 
-// যখন কম্পোনেন্ট মাউন্ট হবে, তখন ডেটা আনার জন্য লজিক (পরে API কল হবে)
-// import { onMounted } from 'vue';
-// onMounted(() => {
-//     fetchUsers(); // API কল ফাংশন
-// });
+onMounted(() => {
+    fetchUsers();
+});
 </script>
-
-<style scoped>
-/*
-যদি আপনার টেমপ্লেটের জন্য কোনো নির্দিষ্ট CSS থাকে,
-তাহলে এখানে বা গ্লোবাল CSS ফাইলে যোগ করুন।
-*/
-</style>
