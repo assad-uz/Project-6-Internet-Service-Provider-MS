@@ -8,8 +8,8 @@
         
         <div v-if="Object.keys(validationErrors).length" class="alert alert-danger alert-dismissible fade show">
             <ul class="mb-0">
-                <template v-for="(errors, field) in validationErrors" :key="field">
-                    <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
+                <template v-for="(errors, field) in validationErrors">
+                    <li v-for="(error, index) in errors" :key="field + index">{{ error }}</li>
                 </template>
             </ul>
             <button type="button" class="btn-close" @click="validationErrors = {}"></button>
