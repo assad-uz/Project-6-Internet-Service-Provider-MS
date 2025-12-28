@@ -1,11 +1,11 @@
 <template>
     <div class="container mt-4">
-        
+
         <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="mb-0">Customer Types Management</h3>
-            
+
             <router-link :to="{ name: 'customer_types.create' }" class="btn btn-primary">
                 + Create New Type
             </router-link>
@@ -35,7 +35,8 @@
                             <td>{{ type.name }}</td>
                             <td>{{ formatDate(type.created_at) }}</td>
                             <td class="text-center">
-                                <router-link :to="{ name: 'customer_types.edit', params: { id: type.id } }" class="btn btn-warning btn-icon btn-sm">
+                                <router-link :to="{ name: 'customer_types.edit', params: { id: type.id } }"
+                                    class="btn btn-warning btn-icon btn-sm">
                                     <i class="bx bx-edit text-white"></i>
                                 </router-link>
 
@@ -52,7 +53,7 @@
                 </table>
             </div>
         </div>
-        
+
         <div class="d-flex justify-content-center mt-3"></div>
     </div>
 </template>
@@ -74,7 +75,7 @@ const fetchCustomerTypes = async () => {
     try {
         // লারাভেলে paginate(10) ব্যবহার করায় ডাটা response.data.data-তে থাকবে
         const response = await axios.get('customer_types');
-        customerTypes.value = response.data.data; 
+        customerTypes.value = response.data.data;
     } catch (error) {
         console.error("Error fetching customer types:", error);
         alert("Failed to load customer types. Check backend connection.");
@@ -95,10 +96,10 @@ const deleteType = async (typeId) => {
     if (confirm('Are you sure you want to delete this customer type?')) {
         try {
             await axios.delete(`customer_types/${typeId}`);
-            
+
             // রিয়েল-টাইমে লিস্ট থেকে বাদ দেওয়া
             customerTypes.value = customerTypes.value.filter(t => t.id !== typeId);
-            
+
             successMessage.value = 'Customer type deleted successfully!';
             setTimeout(() => { successMessage.value = null; }, 3000);
         } catch (error) {

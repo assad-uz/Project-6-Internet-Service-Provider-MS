@@ -10,29 +10,35 @@ use Illuminate\Validation\Rule;
 
 class CustomerController extends Controller
 {
-    // 1. INDEX: সমস্ত কাস্টমার দেখানোর জন্য
+    // ১. INDEX: কাস্টমার লিস্ট (API)
     public function index()
     {
-        // Eager Loading: area এবং customerType রিলেশনশিপ লোড করা হচ্ছে
         $customers = Customer::with(['area', 'customerType'])
                              ->orderBy('id', 'desc')
                              ->paginate(10); 
                              
-        return view('pages.admin.customers.index', compact('customers'));
+        return response()->json([
+            'success' => true,
+            'data' => $customers
+        ]);
     }
 
-    // 2. CREATE: নতুন ফর্ম দেখানোর জন্য
+    // ২. CREATE: প্রয়োজনীয় ডিপেন্ডেন্সি ডেটা (Vue এর ড্রপডাউনের জন্য)
     public function create()
     {
         $areas = Area::orderBy('name')->get(); 
         $customerTypes = CustomerType::orderBy('name')->get();
-        // status-এর জন্য ENUM ভ্যালু
         $statuses = ['active', 'inactive', 'suspended'];
         
-        return view('pages.admin.customers.create', compact('areas', 'customerTypes', 'statuses'));
+        return response()->json([
+            'success' => true,
+            'areas' => $areas,
+            'customer_types' => $customerTypes,
+            'statuses' => $statuses
+        ]);
     }
 
-    // 3. STORE: নতুন ডেটা সেভ করার জন্য
+    // ৩. STORE: নতুন কাস্টমার সেভ
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -42,32 +48,35 @@ class CustomerController extends Controller
             'address' => 'required|string',
             'area_id' => 'required|exists:areas,id',
             'customer_type_id' => 'required|exists:customer_types,id',
-            // Rule::in() ব্যবহার করে নিশ্চিত করা হচ্ছে যে স্ট্যাটাস ENUM-এর মধ্যে আছে
             'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
         ]);
         
-        Customer::create($validated);
+        $customer = Customer::create($validated);
 
-        return redirect()->route('customers.index')
-                         ->with('success', 'Customer created successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Customer created successfully.',
+            'data' => $customer
+        ], 201);
     }
 
-    // 4. EDIT: এডিট ফর্ম দেখানোর জন্য
-    public function edit(Customer $customer)
+    // ৪. SHOW/EDIT: সিঙ্গেল কাস্টমার ডেটা
+    public function show(Customer $customer)
     {
-        $areas = Area::orderBy('name')->get(); 
-        $customerTypes = CustomerType::orderBy('name')->get();
-        $statuses = ['active', 'inactive', 'suspended'];
+        // রিলেশনসহ ডেটা পাঠানো
+        $customer->load(['area', 'customerType']);
         
-        return view('pages.admin.customers.edit', compact('customer', 'areas', 'customerTypes', 'statuses'));
+        return response()->json([
+            'success' => true,
+            'data' => $customer
+        ]);
     }
 
-    // 5. UPDATE: ডেটা আপডেট করার জন্য
+    // ৫. UPDATE: কাস্টমার আপডেট
     public function update(Request $request, Customer $customer)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:150',
-            // ফোন এবং ইমেইল uniqueness চেক করা হচ্ছে, বর্তমান কাস্টমারকে বাদ দিয়ে
             'phone' => 'required|string|max:20|unique:customers,phone,' . $customer->id,
             'email' => 'nullable|email|max:100|unique:customers,email,' . $customer->id,
             'address' => 'required|string',
@@ -78,17 +87,21 @@ class CustomerController extends Controller
 
         $customer->update($validated);
 
-        return redirect()->route('customers.index')
-                         ->with('success', 'Customer updated successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Customer updated successfully.',
+            'data' => $customer
+        ]);
     }
 
-    // 6. DESTROY: ডেটা ডিলিট করার জন্য
+    // ৬. DESTROY: কাস্টমার ডিলিট
     public function destroy(Customer $customer)
     {
-        // 💡 যদি ভবিষ্যতে Customer-এর সাথে Connection বা Billing-এর সম্পর্ক থাকে, তবে এখানে চেক করতে হবে।
         $customer->delete();
         
-        return redirect()->route('customers.index')
-                         ->with('success', 'Customer deleted successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Customer deleted successfully.'
+        ]);
     }
 }

@@ -116,7 +116,7 @@ const saveCustomer = () => {
     return;
   }
 
-  // 🎯 API কলের জন্য জায়গা: axios.post('/api/customers', form.value)
+  // API কলের জন্য জায়গা: axios.post('/api/customers', form.value)
   console.log('Saving customer:', form.value);
 
   alert('Customer added successfully! (Static Mode)');
