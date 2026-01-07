@@ -116,22 +116,32 @@ const form = ref({
   address: '',
 });
 
-// এরিয়া, টাইপ এবং কাস্টমার ডেটা লোড করা
+// CustomerEdit.vue এর fetchData ফাংশনটি রিপ্লেস করুন
 const fetchData = async (id) => {
     loading.value = true;
     try {
-        // দুটি এপিআই কল একসাথে করা (Setup Data + Customer Details)
         const [setupRes, customerRes] = await Promise.all([
             axios.get('customer-setup-data'),
             axios.get(`customers/${id}`)
         ]);
 
+        // ১. ড্রপডাউন ডাটা সেট করা
         setupData.value = setupRes.data;
-        form.value = customerRes.data.data;
+
+        // ২. কাস্টমার ডাটা সেট করা (Console Log দিয়ে চেক করুন)
+        console.log("Customer Full Response:", customerRes.data);
+        
+        if (customerRes.data.success) {
+            // কন্ট্রোলারের 'data' কি অনুযায়ী অ্যাসাইন করা
+            form.value = customerRes.data.data;
+        }
+
     } catch (error) {
-        console.error("Fetch error:", error);
-        alert('Customer not found or server error!');
-        router.push({ name: 'customers.index' });
+        // এই লগটি আপনাকে বলবে আসলে ব্যাকএন্ড থেকে কী এরর আসছে (404 নাকি 500)
+        console.error("Fetch Error Response:", error.response);
+        
+        // সাময়িকভাবে অ্যালার্ট বন্ধ রাখতে পারেন যদি ডিব্যাগ করতে চান
+        alert('Fetch Error: ' + (error.response?.statusText || 'Server Error'));
     } finally {
         loading.value = false;
     }

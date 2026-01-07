@@ -34,6 +34,7 @@ Route::apiResource('areas', AreaController::class);
 Route::apiResource('distribution_boxes', DistributionBoxController::class);
 
 // Customers
+Route::get('customer-setup-data', [CustomerController::class, 'create']);
 Route::apiResource('customers', CustomerController::class);
 
 // Connections

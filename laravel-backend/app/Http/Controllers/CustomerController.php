@@ -25,18 +25,14 @@ class CustomerController extends Controller
 
     // ২. CREATE: প্রয়োজনীয় ডিপেন্ডেন্সি ডেটা (Vue এর ড্রপডাউনের জন্য)
     public function create()
-    {
-        $areas = Area::orderBy('name')->get(); 
-        $customerTypes = CustomerType::orderBy('name')->get();
-        $statuses = ['active', 'inactive', 'suspended'];
-        
-        return response()->json([
-            'success' => true,
-            'areas' => $areas,
-            'customer_types' => $customerTypes,
-            'statuses' => $statuses
-        ]);
-    }
+{
+    // সব এরিয়া এবং টাইপ একসাথে পাঠানো হচ্ছে
+    return response()->json([
+        'areas' => Area::select('id', 'name')->get(),
+        'customer_types' => CustomerType::select('id', 'name')->get(),
+        'statuses' => ['active', 'inactive', 'suspended']
+    ]);
+}
 
     // ৩. STORE: নতুন কাস্টমার সেভ
     public function store(Request $request)
