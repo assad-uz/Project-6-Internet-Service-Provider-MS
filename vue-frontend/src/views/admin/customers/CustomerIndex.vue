@@ -20,10 +20,10 @@
 
             <div v-else class="table-responsive">
                 <table class="table table-hover table-bordered align-middle">
-                    <thead class="table-dark">
-                        <tr class="text-center">
+                    <thead class="table-dark text-center">
+                        <tr>
                             <th style="width: 5%">#</th>
-                            <th style="width: 20%">Customer (Phone)</th>
+                            <th style="width: 20%">Customer & Phone</th>
                             <th style="width: 15%">Username</th>
                             <th style="width: 15%">Package</th>
                             <th style="width: 15%">Box / Port</th>
@@ -40,17 +40,17 @@
                                 <small class="text-muted"><i class="bx bx-phone"></i> {{ connection.customer?.phone || '' }}</small>
                             </td>
                             <td class="text-center">
-                                <code class="text-primary fw-bold">{{ connection.username }}</code>
+                                <strong>{{ connection.username }}</strong>
                             </td>
                             <td>
                                 {{ connection.package?.package_name || 'N/A' }}<br>
                                 <small class="text-success fw-bold">{{ connection.package?.price || 0 }} TK</small>
                             </td>
                             <td>
-                                <i class="bx bx-box"></i> {{ connection.distribution_box?.box_code || 'N/A' }}<br>
+                                <i class="bx bx-box text-muted"></i> {{ connection.distribution_box?.box_code || 'N/A' }}<br>
                                 <small class="text-muted">Port: {{ connection.box_port_number || 'N/A' }}</small>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <span class="badge bg-info text-dark">{{ connection.connection_type }}</span><br>
                                 <small class="text-muted">{{ formatDate(connection.connection_date) }}</small>
                             </td>
@@ -90,12 +90,10 @@ const connections = ref([]);
 const loading = ref(true);
 const successMessage = ref(null);
 
-// এপিআই থেকে কানেকশন লিস্ট নিয়ে আসা
 const fetchConnections = async () => {
     loading.value = true;
     try {
         const response = await axios.get('connections');
-        // আপনার কাস্টমার ফাইলের মতো paginate() ডেটা হ্যান্ডেল করা
         connections.value = response.data.data.data; 
     } catch (error) {
         console.error("Error fetching connections:", error);
@@ -104,7 +102,6 @@ const fetchConnections = async () => {
     }
 };
 
-// কানেকশন ডিলিট করা
 const deleteConnection = async (id) => {
     if (confirm('Are you sure you want to delete this connection?')) {
         try {
@@ -115,18 +112,18 @@ const deleteConnection = async (id) => {
                 setTimeout(() => successMessage.value = null, 3000);
             }
         } catch (error) {
-            console.error("Delete error:", error);
+            console.error(error);
             alert("Could not delete connection.");
         }
     }
 };
 
-// হেল্পার ফাংশনসমূহ (আপনার কাস্টমার টেবিল থেকে নেওয়া)
 const getStatusClass = (status) => {
     const classes = {
         active: 'bg-success',
-        suspended: 'bg-warning text-dark',
-        terminated: 'bg-danger'
+        suspended: 'bg-danger', // কাস্টমার মডিউল অনুযায়ী কালার
+        inactive: 'bg-secondary',
+        terminated: 'bg-dark'
     };
     return classes[status] || 'bg-dark';
 };
@@ -135,8 +132,7 @@ const capitalize = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
 
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-GB', options);
+    return new Date(dateString).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 onMounted(() => {
@@ -145,17 +141,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* কাস্টমার টেবিলের সেইম সিএসএস */
 .btn-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0.4rem;
-}
-/* Username এর জন্য একটু সুন্দর স্টাইল */
-code {
-    font-size: 0.9rem;
-    padding: 2px 5px;
-    background-color: #f1f1f1;
-    border-radius: 4px;
 }
 </style>
