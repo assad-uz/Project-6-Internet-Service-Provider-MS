@@ -59,8 +59,12 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group">
-                                    <button @click="confirmDelete(payment.id)"
-                                        class="btn btn-danger btn-icon btn-sm">
+                                    <router-link :to="{ name: 'payments.edit', params: { id: payment.id } }"
+                                        class="btn btn-warning btn-icon btn-sm me-1">
+                                        <i class="bx bx-edit text-white"></i>
+                                    </router-link>
+
+                                    <button @click="confirmDelete(payment.id)" class="btn btn-danger btn-icon btn-sm">
                                         <i class="bx bx-trash text-white"></i>
                                     </button>
                                 </div>
@@ -78,9 +82,11 @@
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center mb-0">
                         <li class="page-item" :class="{ disabled: !pagination.prev_page_url }">
-                            <button class="page-link" @click="fetchPayments(pagination.current_page - 1)">Previous</button>
+                            <button class="page-link"
+                                @click="fetchPayments(pagination.current_page - 1)">Previous</button>
                         </li>
-                        <li v-for="page in pagination.last_page" :key="page" class="page-item" :class="{ active: page === pagination.current_page }">
+                        <li v-for="page in pagination.last_page" :key="page" class="page-item"
+                            :class="{ active: page === pagination.current_page }">
                             <button class="page-link" @click="fetchPayments(page)">{{ page }}</button>
                         </li>
                         <li class="page-item" :class="{ disabled: !pagination.next_page_url }">
@@ -181,9 +187,11 @@ onMounted(() => {
     width: 32px;
     height: 32px;
 }
+
 .table-dark {
     background-color: #343a40;
 }
+
 .badge {
     font-weight: 500;
     padding: 0.5em 0.8em;
