@@ -47,6 +47,7 @@ Route::get('billings/{billing}/invoice', [BillingController::class, 'invoice'])-
 Route::apiResource('billings', BillingController::class);
 
 // Payments
+Route::get('payment-setup', [PaymentController::class, 'setupData']);
 Route::apiResource('payments', PaymentController::class);
 
 // Reports
