@@ -6,16 +6,16 @@
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="mb-0">Customer Management</h3>
-            <router-link :to="{ name: 'customers.create' }" class="btn btn-primary shadow-sm">
-                <i class="bx bx-plus"></i> Add New Customer
+            <h3 class="mb-0">Connection Management</h3>
+            <router-link :to="{ name: 'connections.create' }" class="btn btn-primary shadow-sm">
+                <i class="bx bx-plus"></i> Add New Connection
             </router-link>
         </div>
 
         <div class="card p-3 shadow-sm border-0">
             <div v-if="loading" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status"></div>
-                <p class="mt-2 text-muted">Fetching customers...</p>
+                <p class="mt-2 text-muted">Fetching connections...</p>
             </div>
 
             <div v-else class="table-responsive">
@@ -23,108 +23,110 @@
                     <thead class="table-dark">
                         <tr class="text-center">
                             <th style="width: 5%">#</th>
-                            <th style="width: 20%">Name & Phone</th>
-                            <th style="width: 25%">Address</th>
-                            <th style="width: 15%">Type / Area</th>
-                            <th style="width: 10%">Status</th>
-                            <th style="width: 10%">Created</th>
-                            <th style="width: 15%">Actions</th>
+                            <th style="width: 20%">Customer (Phone)</th>
+                            <th style="width: 15%">Username</th>
+                            <th style="width: 15%">Package</th>
+                            <th style="width: 15%">Box / Port</th>
+                            <th style="width: 12%">Type / Date</th>
+                            <th style="width: 8%">Status</th>
+                            <th style="width: 10%">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(customer, index) in customers" :key="customer.id">
+                        <tr v-for="(connection, index) in connections" :key="connection.id">
                             <td class="text-center">{{ index + 1 }}</td>
                             <td>
-                                <strong>{{ customer.name }}</strong><br>
-                                <small class="text-muted"><i class="bx bx-phone"></i> {{ customer.phone }}</small>
-                            </td>
-                            <td>{{ truncateText(customer.address, 50) }}</td>
-                            <td>
-                                <span class="badge bg-info text-dark">{{ customer.customer_type?.name || 'N/A'
-                                    }}</span><br>
-                                <small class="text-muted"><i class="bx bx-map"></i> {{ customer.area?.name || 'N/A'
-                                    }}</small>
+                                <strong>{{ connection.customer?.name || 'N/A' }}</strong><br>
+                                <small class="text-muted"><i class="bx bx-phone"></i> {{ connection.customer?.phone || '' }}</small>
                             </td>
                             <td class="text-center">
-                                <span :class="['badge', getStatusClass(customer.status)]">
-                                    {{ capitalize(customer.status) }}
+                                <code class="text-primary fw-bold">{{ connection.username }}</code>
+                            </td>
+                            <td>
+                                {{ connection.package?.package_name || 'N/A' }}<br>
+                                <small class="text-success fw-bold">{{ connection.package?.price || 0 }} TK</small>
+                            </td>
+                            <td>
+                                <i class="bx bx-box"></i> {{ connection.distribution_box?.box_code || 'N/A' }}<br>
+                                <small class="text-muted">Port: {{ connection.box_port_number || 'N/A' }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-dark">{{ connection.connection_type }}</span><br>
+                                <small class="text-muted">{{ formatDate(connection.connection_date) }}</small>
+                            </td>
+                            <td class="text-center">
+                                <span :class="['badge', getStatusClass(connection.status)]">
+                                    {{ capitalize(connection.status) }}
                                 </span>
                             </td>
-                            <td class="text-center">{{ formatDate(customer.created_at) }}</td>
                             <td class="text-center">
-                                <router-link :to="{ name: 'customers.edit', params: { id: customer.id } }"
+                                <router-link :to="{ name: 'connections.edit', params: { id: connection.id } }"
                                     class="btn btn-warning btn-icon btn-sm">
                                     <i class="bx bx-edit text-white"></i>
                                 </router-link>
 
-                                <button @click="deleteCustomer(customer.id)"
+                                <button @click="deleteConnection(connection.id)"
                                     class="btn btn-danger btn-icon btn-sm ms-1">
                                     <i class="bx bx-trash text-white"></i>
                                 </button>
                             </td>
                         </tr>
 
-                        <tr v-if="customers.length === 0">
-                            <td colspan="7" class="text-center py-4 text-muted">No customers found.</td>
+                        <tr v-if="connections.length === 0">
+                            <td colspan="8" class="text-center py-4 text-muted">No connections found.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from '@/axios.js'; // আপনার তৈরি করা axios কনফিগ
+import axios from '@/axios.js';
 
-const customers = ref([]);
+const connections = ref([]);
 const loading = ref(true);
 const successMessage = ref(null);
 
-// এপিআই থেকে কাস্টমার লিস্ট নিয়ে আসা
-const fetchCustomers = async () => {
+// এপিআই থেকে কানেকশন লিস্ট নিয়ে আসা
+const fetchConnections = async () => {
     loading.value = true;
     try {
-        const response = await axios.get('customers');
-        // লারাভেল কন্ট্রোলার থেকে পাঠানো ডেটা
-        customers.value = response.data.data.data; // paginate() ব্যবহার করলে .data.data.data হয়
+        const response = await axios.get('connections');
+        // আপনার কাস্টমার ফাইলের মতো paginate() ডেটা হ্যান্ডেল করা
+        connections.value = response.data.data.data; 
     } catch (error) {
-        console.error("Error fetching customers:", error);
+        console.error("Error fetching connections:", error);
     } finally {
         loading.value = false;
     }
 };
 
-// কাস্টমার ডিলিট করা
-const deleteCustomer = async (id) => {
-    if (confirm('Are you sure you want to delete this customer?')) {
+// কানেকশন ডিলিট করা
+const deleteConnection = async (id) => {
+    if (confirm('Are you sure you want to delete this connection?')) {
         try {
-            const response = await axios.delete(`customers/${id}`);
+            const response = await axios.delete(`connections/${id}`);
             if (response.data.success) {
-                // লিস্ট থেকে ফিল্টার করে রিমুভ করা (পেজ রিফ্রেশ ছাড়া)
-                customers.value = customers.value.filter(c => c.id !== id);
-                successMessage.value = 'Customer deleted successfully!';
+                connections.value = connections.value.filter(c => c.id !== id);
+                successMessage.value = 'Connection deleted successfully!';
                 setTimeout(() => successMessage.value = null, 3000);
             }
         } catch (error) {
             console.error("Delete error:", error);
-            alert("Could not delete customer.");
+            alert("Could not delete connection.");
         }
     }
 };
 
-// হেল্পার ফাংশনসমূহ
-const truncateText = (text, limit) => {
-    return text && text.length > limit ? text.substring(0, limit) + '...' : text;
-};
-
+// হেল্পার ফাংশনসমূহ (আপনার কাস্টমার টেবিল থেকে নেওয়া)
 const getStatusClass = (status) => {
     const classes = {
         active: 'bg-success',
-        inactive: 'bg-secondary',
-        suspended: 'bg-danger'
+        suspended: 'bg-warning text-dark',
+        terminated: 'bg-danger'
     };
     return classes[status] || 'bg-dark';
 };
@@ -137,9 +139,8 @@ const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-GB', options);
 };
 
-// কম্পোনেন্ট মাউন্ট হলে ডেটা লোড হবে
 onMounted(() => {
-    fetchCustomers();
+    fetchConnections();
 });
 </script>
 
@@ -149,5 +150,12 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     padding: 0.4rem;
+}
+/* Username এর জন্য একটু সুন্দর স্টাইল */
+code {
+    font-size: 0.9rem;
+    padding: 2px 5px;
+    background-color: #f1f1f1;
+    border-radius: 4px;
 }
 </style>

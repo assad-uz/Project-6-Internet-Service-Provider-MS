@@ -38,6 +38,7 @@ Route::get('customer-setup-data', [CustomerController::class, 'create']);
 Route::apiResource('customers', CustomerController::class);
 
 // Connections
+Route::get('connection-setup-data', [ConnectionController::class, 'create']);
 Route::apiResource('connections', ConnectionController::class);
 
 // Billings

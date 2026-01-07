@@ -1,91 +1,94 @@
 <template>
   <div class="container mt-5">
-    <div class="card shadow-lg">
-      <div class="card-header bg-success text-white">
-        <h4 class="mb-0">Create New Connection</h4>
+    <div class="card shadow-lg border-0">
+      <div class="card-header bg-success text-white py-3">
+        <h4 class="mb-0 fw-bold"><i class="bx bx-link-plus"></i> Create New Connection</h4>
       </div>
-      <div class="card-body">
+      <div class="card-body p-4">
         
-        <div v-if="validationErrors.length" class="alert alert-danger">
-          <ul>
-            <li v-for="(error, index) in validationErrors" :key="index">{{ error }}</li>
+        <div v-if="Object.keys(validationErrors).length" class="alert alert-danger alert-dismissible fade show">
+          <ul class="mb-0">
+            <template v-for="(errors, field) in validationErrors" :key="field">
+              <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
+            </template>
           </ul>
+          <button type="button" class="btn-close" @click="validationErrors = {}"></button>
         </div>
 
-        <form @submit.prevent="saveConnection">
+        <div v-if="loading" class="text-center py-5">
+          <div class="spinner-border text-success" role="status"></div>
+          <p class="mt-2 text-muted">Loading setup data...</p>
+        </div>
+
+        <form v-else @submit.prevent="saveConnection">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Customer <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Customer <span class="text-danger">*</span></label>
               <select class="form-select" v-model="form.customer_id" required>
                 <option value="" disabled>Select Customer</option>
-                <option v-for="c in customers" :key="c.id" :value="c.id">
-                  {{ c.name }} ({{ c.phone }})
+                <option v-for="c in setupData.customers" :key="c.id" :value="c.id">
+                  {{ c.name }}
                 </option>
               </select>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label class="form-label">Package <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Package <span class="text-danger">*</span></label>
               <select class="form-select" v-model="form.package_id" required>
                 <option value="" disabled>Select Package</option>
-                <option v-for="p in packages" :key="p.id" :value="p.id">
-                  {{ p.package_name }}
+                <option v-for="p in setupData.packages" :key="p.id" :value="p.id">
+                  {{ p.package_name }} ({{ p.price }} TK)
                 </option>
               </select>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label class="form-label">Distribution Box <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Distribution Box <span class="text-danger">*</span></label>
               <select class="form-select" v-model="form.distribution_box_id" required>
                 <option value="" disabled>Select Box</option>
-                <option v-for="b in boxes" :key="b.id" :value="b.id">
-                  {{ b.box_code }} ({{ b.area?.name || 'N/A' }})
+                <option v-for="b in setupData.boxes" :key="b.id" :value="b.id">
+                  {{ b.box_code }}
                 </option>
               </select>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label class="form-label">Box Port Number</label>
-              <input type="number" class="form-control" v-model="form.box_port_number" />
+              <label class="form-label fw-bold">Box Port Number</label>
+              <input type="number" class="form-control" v-model="form.box_port_number" placeholder="e.g. 5" />
             </div>
 
             <div class="col-md-6 mb-3">
-              <label class="form-label">Username <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" v-model="form.username" required />
+              <label class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" v-model="form.username" placeholder="Unique username" required />
             </div>
 
             <div class="col-md-6 mb-3">
-              <label class="form-label">Password <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Password <span class="text-danger">*</span></label>
               <input type="text" class="form-control" v-model="form.password" required />
             </div>
 
             <div class="col-md-6 mb-3">
-              <label class="form-label">Connection Type <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Connection Type <span class="text-danger">*</span></label>
               <select class="form-select" v-model="form.connection_type" required>
                 <option value="" disabled>Select Type</option>
-                <option v-for="type in connectionTypes" :key="type" :value="type">{{ type }}</option>
+                <option v-for="type in setupData.connection_types" :key="type" :value="type">{{ type }}</option>
               </select>
             </div>
 
             <div class="col-md-6 mb-3">
-              <label class="form-label">Connection Date <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Connection Date <span class="text-danger">*</span></label>
               <input type="date" class="form-control" v-model="form.connection_date" required />
             </div>
 
             <div class="col-md-6 mb-3">
-              <label class="form-label">IP Address (Optional)</label>
-              <input type="text" class="form-control" v-model="form.ip_address" />
+              <label class="form-label fw-bold">IP Address</label>
+              <input type="text" class="form-control" v-model="form.ip_address" placeholder="192.168.x.x" />
             </div>
 
             <div class="col-md-6 mb-3">
-              <label class="form-label">MAC Address (Optional)</label>
-              <input type="text" class="form-control" v-model="form.mac_address" />
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Status <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Status <span class="text-danger">*</span></label>
               <select class="form-select" v-model="form.status" required>
-                <option v-for="s in statuses" :key="s" :value="s">
+                <option v-for="s in setupData.statuses" :key="s" :value="s">
                   {{ s.charAt(0).toUpperCase() + s.slice(1) }}
                 </option>
               </select>
@@ -93,8 +96,13 @@
           </div>
 
           <div class="d-flex justify-content-between mt-4">
-            <router-link :to="{ name: 'connections.index' }" class="btn btn-secondary">Back to list</router-link>
-            <button type="submit" class="btn btn-success">Save Connection</button>
+            <router-link :to="{ name: 'connections.index' }" class="btn btn-outline-secondary px-4">
+              <i class="bx bx-arrow-back"></i> Back to list
+            </router-link>
+            <button type="submit" class="btn btn-success px-5 shadow-sm" :disabled="submitting">
+              <span v-if="submitting" class="spinner-border spinner-border-sm me-1"></span>
+              <i v-else class="bx bx-save"></i> Save Connection
+            </button>
           </div>
         </form>
       </div>
@@ -103,14 +111,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from '@/axios.js';
 
 const router = useRouter();
-const validationErrors = ref([]);
+const loading = ref(true);
+const submitting = ref(false);
+const validationErrors = ref({});
 
-// আজকের তারিখ ডিফল্ট হিসেবে সেট করা
-const today = new Date().toISOString().split('T')[0];
+const setupData = ref({
+  customers: [],
+  packages: [],
+  boxes: [],
+  connection_types: [],
+  statuses: []
+});
 
 const form = ref({
   customer_id: '',
@@ -120,38 +136,48 @@ const form = ref({
   username: '',
   password: '',
   connection_type: '',
-  connection_date: today,
+  connection_date: new Date().toISOString().split('T')[0],
   ip_address: '',
   mac_address: '',
   status: 'active',
 });
 
-// ড্রপডাউনের জন্য ডামি ডাটা
-const customers = ref([
-  { id: 1, name: 'Rahim Uddin', phone: '01712345678' },
-  { id: 2, name: 'Abul Kashem', phone: '01987654321' }
-]);
-
-const packages = ref([
-  { id: 1, package_name: '10 Mbps Standard' },
-  { id: 2, package_name: '20 Mbps Premium' }
-]);
-
-const boxes = ref([
-  { id: 1, box_code: 'DB-DH-001', area: { name: 'Dhanmondi' } },
-  { id: 2, box_code: 'DB-UT-010', area: { name: 'Uttara' } }
-]);
-
-const connectionTypes = ref(['PPPoE', 'Static IP', 'Hotspot']);
-const statuses = ref(['active', 'suspended', 'terminated']);
-
-const saveConnection = () => {
-  validationErrors.value = [];
-  
-  // কনসোলে ডাটা চেক করা
-  console.log('Form Submitted:', form.value);
-
-  alert('Connection created successfully!');
-  router.push({ name: 'connections.index' });
+// ব্যাকএন্ড থেকে ড্রপডাউন ডেটা নিয়ে আসা
+const fetchSetupData = async () => {
+  try {
+    const response = await axios.get('connection-setup-data');
+    setupData.value = response.data;
+  } catch (error) {
+    console.error("Error fetching setup data:", error);
+    alert("Failed to load setup data. Please refresh.");
+  } finally {
+    loading.value = false;
+  }
 };
+
+const saveConnection = async () => {
+  submitting.value = true;
+  validationErrors.value = {};
+  
+  try {
+    const response = await axios.post('connections', form.value);
+    if (response.data.success) {
+      alert(response.data.message);
+      router.push({ name: 'connections.index' });
+    }
+  } catch (error) {
+    if (error.response && error.response.status === 422) {
+      validationErrors.value = error.response.data.errors;
+    } else {
+      alert("Something went wrong! Check console.");
+      console.error(error);
+    }
+  } finally {
+    submitting.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchSetupData();
+});
 </script>
