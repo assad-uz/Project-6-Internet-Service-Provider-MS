@@ -1,112 +1,119 @@
 <template>
   <div class="invoice-wrapper py-4">
     <div class="no-print text-center mb-4">
-      <button @click="printInvoice" class="btn btn-success me-2">
+      <button @click="printInvoice" class="btn btn-success me-2 shadow-sm">
         <i class="bx bx-printer"></i> Print Invoice
       </button>
-      <router-link :to="{ name: 'billings.index' }" class="btn btn-secondary">
-        Back to List
+      <router-link :to="{ name: 'billings.index' }" class="btn btn-secondary shadow-sm">
+        <i class="bx bx-arrow-back"></i> Back to List
       </router-link>
     </div>
 
-    <div class="invoice-box shadow-lg" v-if="!loading">
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2">Generating Invoice...</p>
+    </div>
+
+    <div class="invoice-box shadow-sm" v-else-if="billing">
       <div class="invoice-header row align-items-center">
         <div class="col-6">
           <div class="d-flex align-items-center mb-2">
-            <img src="/admin-src/assets/img/logo/my_logo.png" alt="SwiftNet Logo" style="width: 50px; height: 50px; margin-right: 10px;">
-            <h2 class="mb-0 fw-bold">SwiftNet</h2>
+            <img src="/admin-src/assets/img/logo/my_logo.png" alt="Logo" class="invoice-logo">
+            <h2 class="mb-0 fw-bold ms-2 text-primary">SwiftNet</h2>
           </div>
-          <p class="mb-0">Dhanmondi Road 4</p>
-          <p class="mb-0">01717-211311</p>
-          <p class="mb-0">support@swiftnet.com</p>
+          <p class="mb-0 small">Dhanmondi Road 4, Dhaka</p>
+          <p class="mb-0 small">01717-211311</p>
+          <p class="mb-0 small text-muted">support@swiftnet.com</p>
         </div>
         <div class="col-6 text-end">
-          <h1 class="text-uppercase text-secondary mb-0">Invoice</h1>
-          <p class="mb-0 fw-bold">Invoice #{{ billing.id }}</p>
-          <p class="mb-0">Created: {{ formatDate(billing.created_at) }}</p>
-          <p class="mb-0 text-danger fw-bold">Due Date: {{ formatDate(billing.due_date) }}</p>
+          <h1 class="text-uppercase text-secondary fw-light mb-0">Invoice</h1>
+          <p class="mb-0 fw-bold text-dark">#BILL-{{ billing.id }}</p>
+          <p class="mb-0 small">Date: {{ formatDate(billing.created_at) }}</p>
+          <p class="mb-0 small text-danger fw-bold">Due Date: {{ formatDate(billing.due_date) }}</p>
         </div>
       </div>
 
-      <div class="row my-4">
-        <div class="col-12 border-bottom mb-2 pb-1">
-          <h5 class="fw-bold">Billed To:</h5>
+      <div class="row my-4 bg-light p-3 rounded">
+        <div class="col-6 border-end">
+          <h6 class="text-muted text-uppercase small fw-bold">Billed To:</h6>
+          <h5 class="fw-bold mb-1">{{ billing.customer?.name }}</h5>
+          <p class="mb-0 small"><i class="bx bx-phone"></i> {{ billing.customer?.phone }}</p>
+          <p class="mb-0 small"><i class="bx bx-map"></i> {{ billing.customer?.address || 'N/A' }}</p>
         </div>
-        <div class="col-6">
-          <p class="mb-1"><strong>Customer:</strong> {{ billing.customer?.name }}</p>
-          <p class="mb-1"><strong>Phone:</strong> {{ billing.customer?.phone }}</p>
-          <p class="mb-1"><strong>Address:</strong> {{ billing.customer?.address }}</p>
-        </div>
-        <div class="col-6">
-          <p class="mb-1"><strong>Username:</strong> {{ billing.connection?.username }}</p>
-          <p class="mb-1"><strong>Package:</strong> {{ billing.package?.name }} ({{ billing.package?.speed }} Mbps)</p>
-          <p class="mb-1"><strong>Area:</strong> {{ billing.area }}</p>
+        <div class="col-6 ps-4">
+          <h6 class="text-muted text-uppercase small fw-bold">Service Details:</h6>
+          <p class="mb-1 small"><strong>Username:</strong> {{ billing.connection?.username }}</p>
+          <p class="mb-1 small"><strong>Package:</strong> {{ billing.package?.package_name }}</p>
+          <p class="mb-0 small"><strong>Status:</strong> <span class="badge bg-info text-dark">{{ billing.status }}</span></p>
         </div>
       </div>
 
-      <table class="table table-sm invoice-table mb-4 border">
-        <thead>
-          <tr class="table-secondary">
-            <th width="50%">Description</th>
-            <th class="text-center" width="20%">Billing Month</th>
-            <th class="text-end" width="30%">Amount (BDT)</th>
+      <table class="table invoice-table mb-4">
+        <thead class="bg-info  text-white">
+          <tr>
+            <th class="ps-3">Description</th>
+            <th class="text-center">Billing Month</th>
+            <th class="text-end pe-3">Amount</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Monthly Internet Service Fee ({{ billing.package?.name }})</td>
+            <td class="ps-3">
+              <strong>Monthly Internet Service Fee</strong><br>
+              <small class="text-muted">Subscription for {{ billing.package?.package_name }}</small>
+            </td>
             <td class="text-center">{{ formatMonth(billing.billing_month) }}</td>
-            <td class="text-end">{{ formatCurrency(billing.amount) }}</td>
+            <td class="text-end pe-3">৳ {{ formatCurrency(billing.amount) }}</td>
           </tr>
           <tr v-if="billing.discount > 0">
-            <td>Discount Applied</td>
-            <td></td>
-            <td class="text-end text-danger">({{ formatCurrency(billing.discount) }})</td>
+            <td colspan="2" class="text-end text-muted small">Discount Applied:</td>
+            <td class="text-end pe-3 text-danger">- ৳ {{ formatCurrency(billing.discount) }}</td>
           </tr>
-          <tr class="table-primary">
-            <td colspan="2" class="text-end fw-bold">NET AMOUNT PAYABLE</td>
-            <td class="text-end fw-bold">৳ {{ formatCurrency(netAmount) }}</td>
+          <tr class="table-light border-top border-dark">
+            <td colspan="2" class="text-end fw-bold">Net Payable:</td>
+            <td class="text-end pe-3 fw-bold">৳ {{ formatCurrency(netAmount) }}</td>
           </tr>
         </tbody>
       </table>
 
-      <div class="row mt-5">
+      <div class="row mt-4">
         <div class="col-7">
-          <h5 class="border-bottom pb-1 fw-bold">Payment History:</h5>
-          <table v-if="billing.payments.length" class="table table-sm table-striped small border">
+          <h6 class="fw-bold mb-2 border-bottom pb-1">Payment History:</h6>
+          <table v-if="billing.payments && billing.payments.length" class="table table-sm small">
             <thead>
-              <tr>
+              <tr class="text-muted">
                 <th>Date</th>
                 <th>Method</th>
-                <th class="text-end">Paid (BDT)</th>
+                <th class="text-end">Paid</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="payment in billing.payments" :key="payment.id">
-                <td>{{ formatDate(payment.payment_date) }}</td>
+                <td>{{ formatDate(payment.payment_date || payment.created_at) }}</td>
                 <td>{{ payment.payment_method }}</td>
-                <td class="text-end">{{ formatCurrency(payment.amount) }}</td>
+                <td class="text-end fw-bold text-success">৳ {{ formatCurrency(payment.amount) }}</td>
               </tr>
             </tbody>
           </table>
-          <p v-else class="text-muted small">No payments recorded yet.</p>
+          <p v-else class="text-muted small italic">No payments recorded for this invoice.</p>
         </div>
         
         <div class="col-5">
-          <div class="total-summary-box p-3 bg-light border rounded position-relative">
+          <div class="summary-card p-3 rounded">
             <div class="d-flex justify-content-between mb-1">
-              <span>Net Bill:</span>
-              <strong>৳ {{ formatCurrency(netAmount) }}</strong>
+              <span>Total Bill:</span>
+              <span>৳ {{ formatCurrency(netAmount) }}</span>
             </div>
-            <div class="d-flex justify-content-between mb-1 text-success">
-              <span>Total Paid:</span>
-              <strong>৳ {{ formatCurrency(totalPaid) }}</strong>
+            <div class="d-flex justify-content-between mb-1 text-success fw-bold">
+              <span>Paid Amount:</span>
+              <span>৳ {{ formatCurrency(totalPaid) }}</span>
             </div>
-            <div class="d-flex justify-content-between border-top pt-2 h4 mt-2">
-              <span>Due:</span>
-              <strong :class="dueAmount > 0 ? 'text-danger' : 'text-success'">
+            <hr class="my-2">
+            <div class="d-flex justify-content-between h5 mb-0">
+              <span class="fw-bold">Total Due:</span>
+              <span :class="dueAmount > 0 ? 'text-danger fw-bold' : 'text-success fw-bold'">
                 ৳ {{ formatCurrency(dueAmount) }}
-              </strong>
+              </span>
             </div>
 
             <div v-if="dueAmount <= 0" class="paid-stamp">PAID</div>
@@ -114,8 +121,9 @@
         </div>
       </div>
 
-      <div class="footer text-center mt-5 pt-4 border-top">
-        <p class="text-muted small">This is a computer generated invoice. Thank you for being with SwiftNet!</p>
+      <div class="footer text-center mt-5 pt-4">
+        <p class="text-muted small">This is a computer-generated document. No signature required.</p>
+        <p class="fw-bold text-primary mb-0">Thank you for being with SwiftNet!</p>
       </div>
     </div>
   </div>
@@ -124,74 +132,97 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import axios from '@/axios.js';
 
 const route = useRoute();
 const loading = ref(true);
+const billing = ref(null);
 
-// ডামি ডাটা
-const billing = ref({
-  id: 4521,
-  created_at: '2025-10-01',
-  due_date: '2025-10-10',
-  billing_month: '2025-10-01',
-  amount: 1000,
-  discount: 50,
-  customer: { name: 'Rahim Uddin', phone: '01712-345678', address: 'House 12, Road 4, Dhanmondi' },
-  connection: { username: 'rahim_dhaka' },
-  package: { name: '10 Mbps Standard', speed: 10 },
-  area: 'Dhanmondi',
-  payments: [
-    { id: 1, payment_date: '2025-10-05', payment_method: 'bKash', amount: 500 },
-    { id: 2, payment_date: '2025-10-07', payment_method: 'Cash', amount: 450 }
-  ]
+// ক্যালকুলেশনস (রিয়েল ডাটার উপর ভিত্তি করে)
+const netAmount = computed(() => (billing.value?.amount || 0) - (billing.value?.discount || 0));
+const totalPaid = computed(() => {
+  if (!billing.value?.payments) return 0;
+  return billing.value.payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
 });
+const dueAmount = computed(() => Math.max(0, netAmount.value - totalPaid.value));
 
-// ক্যালকুলেশনস
-const netAmount = computed(() => billing.value.amount - billing.value.discount);
-const totalPaid = computed(() => billing.value.payments.reduce((sum, p) => sum + p.amount, 0));
-const dueAmount = computed(() => netAmount.value - totalPaid.value);
+// এপিআই থেকে ইনভয়েস ডাটা আনা
+const fetchInvoiceData = async () => {
+  loading.value = true;
+  try {
+    const response = await axios.get(`billings/${route.params.id}`);
+    if (response.data.success) {
+      billing.value = response.data.data;
+    }
+  } catch (error) {
+    console.error("Invoice error:", error);
+    alert("Invoice not found!");
+  } finally {
+    loading.value = false;
+  }
+};
 
-// হেল্পার ফাংশনস
-const formatCurrency = (val) => parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2 });
+const formatCurrency = (val) => parseFloat(val).toFixed(2);
 const formatDate = (date) => new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 const formatMonth = (date) => new Date(date).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 
 const printInvoice = () => { window.print(); };
 
 onMounted(() => {
-  // বাস্তবে এখানে API কল হবে
-  setTimeout(() => { loading.value = false; }, 500);
+  fetchInvoiceData();
 });
 </script>
 
 <style scoped>
 .invoice-box {
-  max-width: 850px;
+  max-width: 800px;
   margin: auto;
-  padding: 40px;
+  padding: 50px;
   background: #fff;
-  border: 1px solid #ddd;
-  min-height: 1000px;
+  border: 1px solid #eee;
+  position: relative;
+  min-height: 900px;
+}
+
+.invoice-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.summary-card {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
 }
 
 .paid-stamp {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  border: 4px solid #198754;
+  bottom: 80px;
+  right: 50px;
+  border: 5px solid #198754;
   color: #198754;
-  padding: 5px 15px;
-  font-size: 24px;
-  font-weight: bold;
+  padding: 10px 30px;
+  font-size: 40px;
+  font-weight: 900;
   text-transform: uppercase;
-  transform: rotate(-20deg);
-  opacity: 0.7;
+  transform: rotate(-15deg);
+  opacity: 0.2;
+}
+
+.invoice-table th {
+  font-size: 0.9rem;
+  text-transform: uppercase;
 }
 
 @media print {
   .no-print { display: none !important; }
-  body { background: none; }
-  .invoice-box { box-shadow: none !important; border: none !important; margin: 0; padding: 0; }
-  .invoice-wrapper { padding: 0 !important; }
+  .invoice-box { 
+    border: none !important; 
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  body { background-color: #fff !important; }
 }
 </style>

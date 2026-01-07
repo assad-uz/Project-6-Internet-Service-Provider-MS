@@ -42,6 +42,7 @@ Route::get('connection-setup-data', [ConnectionController::class, 'create']);
 Route::apiResource('connections', ConnectionController::class);
 
 // Billings
+Route::get('billing-setup', [BillingController::class, 'setupData']);
 Route::get('billings/{billing}/invoice', [BillingController::class, 'invoice'])->name('billings.invoice');
 Route::apiResource('billings', BillingController::class);
 
